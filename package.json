@@ -1,0 +1,76 @@
+{
+  "name": "onyx-launcher",
+  "productName": "Оникс",
+  "version": "0.3.2",
+  "description": "Оникс — лаунчер Minecraft с самурайским оформлением: лицензия, офлайн и Ely.by, Fabric/Quilt/Forge/NeoForge, Modrinth и CurseForge",
+  "main": "src/main/main.js",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "node scripts/ensure-electron.js",
+    "prestart": "node scripts/ensure-electron.js",
+    "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "release": "node scripts/release.js",
+    "serve-updates": "node scripts/serve-updates.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "electron-updater": "^6.8.11"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "dev.onyx.launcher",
+    "productName": "Оникс",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "artifactName": "Onyx-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Оникс",
+      "language": "1049"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.games",
+      "icon": "build/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Game",
+      "icon": "build/icon.png"
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://example.com/onyx/"
+    },
+    "asar": true
+  },
+  "onyxUpdateSource": "Lordome42/onyx-launcher",
+  "onyxUpdateRepo": "Lordome42/onyx-launcher"
+}
