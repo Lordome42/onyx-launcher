@@ -157,7 +157,15 @@ handle('instances:launch', async (id, opts = {}) => {
   };
   const result = await minecraft.launch({ instance, account, settings, repair: !!opts.repair, quickPlay: opts.quickPlay || null, emit });
   if (result.started) {
-    instances.update(id, { lastPlayed: Date.now() });
+    const patch = { lastPlayed: Date.now() };
+    const q = opts.quickPlay;
+    if (q && (q.type === 'server' || q.type === 'world')) {
+      // История входов в миры и на серверы для блока «Последние» на главной.
+      const key = q.type === 'server' ? q.address : q.name;
+      const entry = { type: q.type, key, label: String(q.label || key).slice(0, 80), at: Date.now() };
+      patch.recent = [entry, ...(instances.get(id).recent || []).filter((r) => !(r.type === entry.type && r.key === key))].slice(0, 6);
+    }
+    instances.update(id, patch);
     if (settings.closeOnLaunch) win.hide();
   } else if (result.error) {
     throw new Error(`Java не запустилась: ${result.error}`);

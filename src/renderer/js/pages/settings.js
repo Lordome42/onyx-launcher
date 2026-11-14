@@ -215,10 +215,27 @@ export async function renderSettings(view) {
   });
   $('[data-datadir]', view).addEventListener('click', () => window.api.settings.openDataDir());
 
-  $$('[data-sec]', view).forEach((b) =>
+  // Подсветка пункта меню следует за разделом, к которому прокручена страница.
+  const navBtns = $$('[data-sec]', view);
+  const secEls = navBtns.map((b) => $(`#sec-${b.dataset.sec}`, view));
+  let locked = 0;
+  const setActive = (id) => navBtns.forEach((x) => x.classList.toggle('active', x.dataset.sec === id));
+  const spy = () => {
+    if (Date.now() < locked) return;
+    const top = view.getBoundingClientRect().top + 90;
+    let cur = secEls[0];
+    for (const el of secEls) if (el.getBoundingClientRect().top <= top) cur = el;
+    if (view.scrollTop + view.clientHeight >= view.scrollHeight - 4) cur = secEls[secEls.length - 1];
+    setActive(cur.id.replace('sec-', ''));
+  };
+  let raf = 0;
+  view.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(spy); }, { passive: true });
+  navBtns.forEach((b) =>
     b.addEventListener('click', () => {
-      $$('[data-sec]', view).forEach((x) => x.classList.toggle('active', x === b));
+      setActive(b.dataset.sec);
+      locked = Date.now() + 700; // пока идёт плавная прокрутка, не перебиваем выбор
       $(`#sec-${b.dataset.sec}`, view).scrollIntoView({ behavior: 'smooth', block: 'start' });
     })
   );
+  spy();
 }

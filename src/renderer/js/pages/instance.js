@@ -456,11 +456,11 @@ async function renderWorlds(body, inst) {
         ${w.icon ? `<img class="thumb" src="${w.icon}" alt="" />` : `<div class="thumb">${icon('globe')}</div>`}
         <div style="min-width:0"><div class="t">${esc(w.name)}</div>
           <div class="s">${w.hardcore ? 'Хардкор' : MODES[w.gameType] || 'Мир'} · ${esc(timeAgo(w.lastPlayed))} · папка ${esc(w.folder)}</div></div>
-        <div class="acts"><button class="btn sm primary" data-world="${esc(w.folder)}" ${ok && !running ? '' : 'disabled'}>${icon('play')}Играть</button></div>
+        <div class="acts"><button class="btn sm primary" data-world="${esc(w.folder)}" data-label="${esc(w.name)}" ${ok && !running ? '' : 'disabled'}>${icon('play')}Играть</button></div>
       </div>`
       )
       .join('')}</div>`;
-  $$('[data-world]', body).forEach((b) => b.addEventListener('click', () => togglePlay(inst.id, { type: 'world', name: b.dataset.world })));
+  $$('[data-world]', body).forEach((b) => b.addEventListener('click', () => togglePlay(inst.id, { type: 'world', name: b.dataset.world, label: b.dataset.label || b.dataset.world })));
 }
 
 async function renderServers(body, inst) {
@@ -480,7 +480,7 @@ async function renderServers(body, inst) {
               <div style="min-width:0"><div class="t">${esc(sv.name)}</div>
                 <div class="s" data-motd>${esc(sv.address)}</div></div>
               <div class="acts"><span class="ping" data-ping><i></i>…</span>
-                <button class="btn sm primary" data-join="${esc(sv.address)}" ${running ? 'disabled' : ''}>${icon('play')}Зайти</button>
+                <button class="btn sm primary" data-join="${esc(sv.address)}" data-label="${esc(sv.name)}" ${running ? 'disabled' : ''}>${icon('play')}Зайти</button>
                 ${sv.fromGame ? '' : `<button class="btn ghost sm icon-only" data-del="${esc(sv.address)}" aria-label="Удалить сервер">${icon('trash')}</button>`}</div>
             </div>`
               )
@@ -489,7 +489,7 @@ async function renderServers(body, inst) {
              <button class="btn primary" data-add-server>${icon('plus')}Добавить сервер</button></div>`
       }`;
     $$('[data-add-server]', body).forEach((b) => b.addEventListener('click', addDialog));
-    $$('[data-join]', body).forEach((b) => b.addEventListener('click', () => togglePlay(inst.id, { type: 'server', address: b.dataset.join })));
+    $$('[data-join]', body).forEach((b) => b.addEventListener('click', () => togglePlay(inst.id, { type: 'server', address: b.dataset.join, label: b.dataset.label || b.dataset.join })));
     $$('[data-del]', body).forEach((b) =>
       b.addEventListener('click', async () => {
         await window.api.instances.removeServer(inst.id, b.dataset.del);
