@@ -8,6 +8,9 @@ export const THEMES = [
   { id: 'sunset', name: 'Закат', bg: '#120c10', panel: '#191116', card: '#2b1d25', accent: '#ff8a4c', hero: 'linear-gradient(120deg,#a4402b,#6b1f5d)' },
   { id: 'sakura', name: 'Сакура', bg: '#f4e9ee', panel: '#fbf4f7', card: '#ffffff', accent: '#e5487d', hero: 'linear-gradient(120deg,#ffc6da,#ffe1c7)' },
   { id: 'forest', name: 'Лес', bg: '#0b100c', panel: '#101711', card: '#1c281f', accent: '#9be15d', hero: 'linear-gradient(120deg,#2f6b2a,#5b4a1d)' },
+  { id: 'skulk', name: 'Скалк', bg: '#050b10', panel: '#08131a', card: '#12262f', accent: '#2fe0d6', hero: 'radial-gradient(circle at 80% 50%,#2fe0d6 0 14%,#08161e 60%)' },
+  { id: 'lush', name: 'Пышные пещеры', bg: '#08110a', panel: '#0d1a0f', card: '#1b3122', accent: '#ff9a4d', hero: 'linear-gradient(120deg,#5ea83a,#0e2012 55%,#ff9a4d)' },
+  { id: 'cherry', name: 'Вишнёвая роща', bg: '#fbe6ee', panel: '#fff3f7', card: '#ffffff', accent: '#e0668f', hero: 'linear-gradient(120deg,#ffb7d0,#ffd6be)' },
   { id: 'ocean', name: 'Океан', bg: '#080d18', panel: '#0c1322', card: '#172238', accent: '#4da3ff', hero: 'linear-gradient(120deg,#1d4f9a,#0f6f7c)' },
 ];
 

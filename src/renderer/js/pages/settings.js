@@ -133,13 +133,9 @@ export async function renderSettings(view) {
               <div class="ctl"><button class="btn" data-dd-change>${icon('folder')}Изменить…</button></div>
             </div>
             <div class="setting">
-              <div class="txt"><b>Обновления лаунчера</b><span data-upd-status>Новые версии проверяются при запуске и скачиваются только с вашего согласия.</span></div>
+              <div class="txt"><b>Обновления лаунчера</b><span data-upd-status>Новые версии берутся из релизов на GitHub, проверяются при запуске и скачиваются только с вашего согласия.</span></div>
               <div class="ctl"><button class="toggle ${s.autoUpdate !== false ? 'on' : ''}" data-flag="autoUpdate" aria-label="Проверять обновления при запуске"></button>
                 <button class="btn" data-upd-check>${icon('refresh')}Проверить</button></div>
-            </div>
-            <div class="setting">
-              <div class="txt"><b>Источник обновлений</b><span>Ссылка на файл onyx-update.json (подойдёт ссылка Dropbox), адрес папки на сайте с файлом latest.yml или «владелец/репозиторий» на GitHub. Если источник уже указан в лаунчере, поле можно не трогать.</span></div>
-              <div class="ctl"><label for="st-repo" style="position:absolute;left:-9999px">Источник обновлений</label><input id="st-repo" class="input" style="width:300px" placeholder="Ссылка на onyx-update.json" value="${esc(s.updateRepo || '')}" /></div>
             </div>
             <div class="setting">
               <div class="txt"><b>Источники</b><span>Версии игры и Java — официальные серверы Mojang. Fabric и Quilt — их официальные мета-серверы. Контент — API Modrinth. Оникс не связан с Mojang, Microsoft или Modrinth.</span></div>
@@ -179,7 +175,6 @@ export async function renderSettings(view) {
   $('#st-h', view).addEventListener('change', (e) => save({ gameHeight: Math.max(480, Number(e.target.value) || 720) }));
   $('#st-cf', view).addEventListener('change', (e) => save({ curseforgeKey: e.target.value.trim() }));
   $('[data-cf-site]', view).addEventListener('click', () => window.api.app.openExternal('https://console.curseforge.com/'));
-  $('#st-repo', view).addEventListener('change', (e) => save({ updateRepo: e.target.value.trim() }));
   $('[data-upd-check]', view).addEventListener('click', async () => {
     const st = $('[data-upd-status]', view);
     st.textContent = 'Проверяю…';

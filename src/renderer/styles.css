@@ -197,6 +197,104 @@
   --scheme: dark;
 }
 
+/* Скалк: тёмная глубина с мерцающим бирюзовым свечением */
+[data-theme='skulk'] {
+  --bg: #050b10;
+  --panel: #08131a;
+  --surface: #0d1c25;
+  --surface-2: #12262f;
+  --surface-3: #1a3540;
+  --border: #14303a;
+  --border-strong: #1f4452;
+  --text: #e4f6f9;
+  --text-2: #94bcc6;
+  --text-3: #5c8794;
+  --accent: #2fe0d6;
+  --accent-2: #7ff3ea;
+  --accent-contrast: #02201f;
+  --accent-soft: rgba(47, 224, 214, 0.14);
+  --play: #2fe0d6;
+  --play-text: #02201f;
+  --success: #5eeaa7;
+  --danger: #ff6f7d;
+  --warning: #f2c14e;
+  --hero: radial-gradient(70% 140% at 88% 50%, rgba(47, 224, 214, 0.38) 0%, transparent 65%),
+    radial-gradient(50% 90% at 10% 100%, rgba(30, 90, 140, 0.45) 0%, transparent 70%), #08161e;
+  --shadow: 0 10px 34px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(47, 224, 214, 0.04);
+  --scheme: dark;
+}
+[data-theme='skulk'] .hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(40% 80% at 80% 45%, rgba(127, 243, 234, 0.28), transparent 70%);
+  animation: skulk-glow 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+[data-theme='skulk'] .btn.primary,
+[data-theme='skulk'] .btn.play {
+  box-shadow: 0 0 18px rgba(47, 224, 214, 0.28);
+}
+@keyframes skulk-glow {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+/* Пышные пещеры: мшистый зелёный и ягоды светящихся плодов */
+[data-theme='lush'] {
+  --bg: #08110a;
+  --panel: #0d1a0f;
+  --surface: #14251a;
+  --surface-2: #1b3122;
+  --surface-3: #25422d;
+  --border: #1d3323;
+  --border-strong: #2c4c36;
+  --text: #eef6e6;
+  --text-2: #b0c7a6;
+  --text-3: #71906f;
+  --accent: #ff9a4d;
+  --accent-2: #ffc08a;
+  --accent-contrast: #2a1204;
+  --accent-soft: rgba(255, 154, 77, 0.15);
+  --play: #8fdc5a;
+  --play-text: #0f2306;
+  --success: #8fdc5a;
+  --danger: #ff6b7a;
+  --warning: #f5c451;
+  --hero: radial-gradient(60% 130% at 88% 55%, rgba(255, 154, 77, 0.34) 0%, transparent 65%),
+    radial-gradient(55% 120% at 8% 0%, rgba(120, 200, 80, 0.4) 0%, transparent 65%),
+    radial-gradient(40% 90% at 60% 110%, rgba(235, 100, 150, 0.22) 0%, transparent 70%), #0e2012;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --scheme: dark;
+}
+
+/* Вишнёвая роща: мягкие розовые тона и тёплое вишнёвое дерево */
+[data-theme='cherry'] {
+  --bg: #fbe6ee;
+  --panel: #fff3f7;
+  --surface: #ffffff;
+  --surface-2: #ffeef4;
+  --surface-3: #fbdbe6;
+  --border: #f6d3e0;
+  --border-strong: #eab9cc;
+  --text: #3b2029;
+  --text-2: #7a4f60;
+  --text-3: #b08697;
+  --accent: #e0668f;
+  --accent-2: #c2406d;
+  --accent-contrast: #ffffff;
+  --accent-soft: rgba(224, 102, 143, 0.13);
+  --play: #6fc27a;
+  --play-text: #0e2a14;
+  --success: #2f9e5f;
+  --danger: #d9304a;
+  --warning: #c98400;
+  --hero: radial-gradient(70% 140% at 90% 20%, rgba(255, 183, 208, 0.9) 0%, transparent 65%),
+    radial-gradient(50% 110% at 5% 100%, rgba(255, 214, 190, 0.8) 0%, transparent 65%), #ffeef4;
+  --shadow: 0 10px 30px rgba(120, 40, 70, 0.14);
+  --scheme: light;
+}
+
 [data-theme='ocean'] {
   --bg: #080d18;
   --panel: #0c1322;
@@ -1997,7 +2095,8 @@ body.low-power .theme-card:hover {
 }
 
 [data-theme='light'],
-[data-theme='sakura'] {
+[data-theme='sakura'],
+[data-theme='cherry'] {
   --torii: var(--text);
 }
 

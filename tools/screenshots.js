@@ -39,6 +39,8 @@ const server = http.createServer((req, res) => {
   await shot('11-filters', 'samurai', '#/browse', async (p) => { await p.click('[data-sec=categories]'); await p.click('[data-f=categories][data-v=magic]'); await p.click('[data-sec=loaders]'); await p.click('[data-sec=versions]'); });
   await shot('12-filters-closed', 'samurai', '#/browse');
   await shot('13-datadir', 'samurai', '#/settings', (p) => p.click('[data-sec=about]'));
+  for (const th of ['skulk', 'lush', 'cherry']) await shot('theme-' + th, th, '#/home');
+  await shot('theme-picker', 'skulk', '#/settings');
   await browser.close(); server.close();
   console.log(errors.length ? 'ERRORS:\n' + errors.join('\n') : 'no errors');
 })();

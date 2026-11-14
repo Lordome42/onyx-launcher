@@ -59,7 +59,6 @@ const DEFAULT_SETTINGS = {
   curseforgeKey: '',
   lowPower: false,
   autoUpdate: true,
-  updateRepo: '',
 };
 
 function readJson(file, fallback) {

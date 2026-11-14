@@ -17,6 +17,27 @@ function greeting() {
 }
 
 function heroArt() {
+  const theme = document.documentElement.dataset.theme;
+  if (theme === 'skulk') {
+    // Датчик скалка: светящиеся щупальца.
+    const stalks = [[40, 150, 22], [75, 150, 14], [105, 150, 8], [135, 150, 16], [170, 150, 24]]
+      .map(([x, y, bend], i) => `<path d="M${x} ${y} C${x - bend} ${y - 45} ${x + bend} ${y - 80} ${x + (i % 2 ? 6 : -6)} ${y - 105 - i * 4}" stroke="var(--accent)" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/><circle cx="${x + (i % 2 ? 6 : -6)}" cy="${y - 105 - i * 4}" r="7" fill="var(--accent-2)"/>`)
+      .join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true"><defs><radialGradient id="sk"><stop offset="0" stop-color="var(--accent)" stop-opacity=".55"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></radialGradient></defs>
+      <circle cx="105" cy="80" r="78" fill="url(#sk)"/>${stalks}<ellipse cx="105" cy="152" rx="90" ry="8" fill="var(--accent)" opacity=".25"/></svg>`;
+  }
+  if (theme === 'lush') {
+    // Светящиеся ягоды на лозах.
+    const vine = (x, len, n) => `<path d="M${x} 0 C${x - 8} ${len / 3} ${x + 8} ${len / 1.6} ${x} ${len}" stroke="#4f9a3a" stroke-width="4" fill="none" stroke-linecap="round"/>` +
+      Array.from({ length: n }, (_, i) => `<circle cx="${x + (i % 2 ? 9 : -9)}" cy="${len - 8 - i * 20}" r="8" fill="var(--accent)"/><circle cx="${x + (i % 2 ? 7 : -11)}" cy="${len - 11 - i * 20}" r="2.5" fill="#fff" opacity=".7"/>`).join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true">${vine(35, 120, 4)}${vine(80, 150, 5)}${vine(130, 100, 3)}${vine(175, 135, 4)}</svg>`;
+  }
+  if (theme === 'cherry') {
+    // Цветок вишни.
+    const petals = [0, 72, 144, 216, 288].map((r) => `<path transform="rotate(${r} 105 80)" d="M105 80 C85 60 88 22 105 14 C122 22 125 60 105 80Z" fill="var(--accent)" opacity=".92"/><path transform="rotate(${r} 105 80)" d="M105 80 L105 40" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>`).join('');
+    const small = [[28, 36, 0.35], [180, 122, 0.3], [170, 30, 0.22], [36, 128, 0.25]].map(([x, y, k]) => `<g transform="translate(${x} ${y}) scale(${k})">${[0, 72, 144, 216, 288].map((r) => `<path transform="rotate(${r})" d="M0 0 C-20 -20 -17 -58 0 -66 C17 -58 20 -20 0 0Z" fill="var(--accent-2)" opacity=".75"/>`).join('')}</g>`).join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true">${small}${petals}<circle cx="105" cy="80" r="9" fill="#ffd36b"/></svg>`;
+  }
   // Ворота тории на фоне красного солнца.
   return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true">
     <circle cx="105" cy="76" r="60" fill="var(--accent)"/>
