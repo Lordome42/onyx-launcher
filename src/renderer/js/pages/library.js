@@ -3,6 +3,7 @@ import { icon } from '../icons.js';
 import { esc, instIcon, coverStyle, timeAgo, formatDuration, confirmDialog, LOADERS, $, $$, toast, progressModal } from '../ui.js';
 import { navigate } from '../router.js';
 import { openCreateInstance } from '../modals.js';
+import { openImport } from '../import-ui.js';
 
 export function instanceCard(i) {
   const loader = LOADERS[i.loader] || LOADERS.vanilla;
@@ -20,28 +21,8 @@ export function instanceCard(i) {
   </div>`;
 }
 
-export async function importPack() {
-  if (state.settings.warnForeignPacks !== false) {
-    const ok = await confirmDialog({
-      title: 'Импортировать сборку из файла?',
-      text: 'Файл .mrpack не из каталога Modrinth может содержать неизвестные файлы и мод-пакеты. Импортируйте только архивы, которым доверяете.',
-      action: 'Выбрать файл',
-      danger: false,
-    });
-    if (!ok) return;
-  }
-  const stop = progressModal('Импорт сборки', 'import');
-  try {
-    const res = await window.api.packs.import();
-    stop();
-    if (!res) return;
-    await loadInstances();
-    toast(`Сборка «${res.instance.name}» импортирована`, res.manual && res.manual.length ? `${res.manual.length} файл(ов) нужно добавить вручную.` : 'Всё скачано, можно играть.', 'success');
-    navigate(`/instance/${res.instance.id}`);
-  } catch (err) {
-    stop();
-    toast('Не удалось импортировать', err.message, 'error');
-  }
+export function importPack() {
+  openImport();
 }
 
 export function newInstanceCard() {

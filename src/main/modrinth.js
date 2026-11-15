@@ -166,17 +166,24 @@ async function detail(idOrSlug, instanceId) {
 }
 
 // Сборка .mrpack: создаём новую сборку, качаем файлы с проверкой sha1 и распаковываем overrides.
-async function installModpack(projectId, onProgress) {
-  const proj = await project(projectId);
-  const versions = await fetchJson(`${API}/project/${encodeURIComponent(projectId)}/version`);
-  const version = versions.find((v) => v.version_type === 'release') || versions[0];
+async function installModpack(projectId, onProgress, wanted = null) {
+  let proj;
+  try {
+    proj = await project(projectId);
+  } catch (err) {
+    if (err.status === 404) throw new Error('Сборка не найдена на Modrinth. Проверьте ссылку.');
+    throw err;
+  }
+  if (proj.project_type !== 'modpack') throw new Error(`«${proj.title}» это не сборка, а ${proj.project_type === 'mod' ? 'мод' : 'другой тип проекта'}. Добавьте его через каталог.`);
+  const versions = await fetchJson(`${API}/project/${encodeURIComponent(proj.id)}/version`);
+  const version = (wanted && versions.find((v) => v.id === wanted || v.version_number === wanted)) || versions.find((v) => v.version_type === 'release') || versions[0];
   if (!version) throw new Error('У этой сборки нет доступных версий');
   const file = version.files.find((f) => f.primary) || version.files[0];
   onProgress('Загрузка сборки', 0, 0);
   const store = require('./store');
   const AdmZip = require('adm-zip');
   const { runPool } = require('./net');
-  const zipPath = path.join(store.paths.cache, `mr-${projectId}.mrpack`);
+  const zipPath = path.join(store.paths.cache, `mr-${String(proj.id).replace(/[^\w-]/g, '')}.mrpack`);
   await downloadFile(file.url, zipPath, { sha1: file.hashes && file.hashes.sha1 });
   try {
     return await importMrpack(zipPath, onProgress, { name: proj.title, iconUrl: proj.icon_url });

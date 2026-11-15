@@ -16,7 +16,7 @@ const on = (channel) => (fn) => {
 contextBridge.exposeInMainWorld('api', {
   platform: process.platform,
   pathForFile: (file) => webUtils.getPathForFile(file),
-  packs: { import: call('packs:import') },
+  packs: { import: call('packs:import'), importFrom: call('packs:importFrom'), classify: call('packs:classify'), pickFile: call('packs:pickFile') },
   window: {
     minimize: call('window:minimize'),
     maximize: call('window:maximize'),
@@ -68,6 +68,7 @@ contextBridge.exposeInMainWorld('api', {
     ping: call('instances:ping'),
   },
   modrinth: { tags: call('modrinth:tags'), search: call('modrinth:search'), project: call('modrinth:project'), install: call('modrinth:install'), detail: call('modrinth:detail'), installModpack: call('modrinth:installModpack') },
+  onyxvisual: { status: call('onyxvisual:status'), install: call('onyxvisual:install') },
   curseforge: { detail: call('curseforge:detail'), search: call('curseforge:search'), install: call('curseforge:install'), installModpack: call('curseforge:installModpack') },
   events: {
     onProgress: on('game:progress'),

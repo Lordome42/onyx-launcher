@@ -48,6 +48,7 @@ const server = http.createServer((req, res) => {
   await shot('22-theme-end', 'end', '#/home');
   await shot('23-theme-nightsky', 'nightsky', '#/home');
   await shot('24-java', 'samurai', '#/settings', (p) => p.click('[data-sec=java]'));
+  await shot('25-import', 'samurai', '#/library', async (p) => { await p.click('[data-import]'); await p.fill('#imp-in', 'https://modrinth.com/modpack/fabulously-optimized'); await p.waitForTimeout(300); });
   await shot('theme-picker', 'skulk', '#/settings');
   await shot('14-home', 'samurai', '#/home');
   await shot('15-home-empty', 'samurai', '#/home', null, '&empty=1');

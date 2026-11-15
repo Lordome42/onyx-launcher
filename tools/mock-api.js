@@ -89,7 +89,7 @@
   window.api = {
     platform: 'win32',
     window: { minimize: ok, maximize: ok, close: ok, onState: noop },
-    app: { info: () => ok({ version: '0.3.7', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
+    app: { info: () => ok({ version: '0.3.8', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
     settings: { get: () => ok(settings), set: (p) => ok((settings = { ...settings, ...p })), openDataDir: ok },
     accounts: { list: () => ok(accounts), loginMicrosoft: ok, addOffline: ok, select: (id) => ok((accounts.selected = id, accounts)), remove: () => ok(accounts) },
     versions: {
@@ -148,8 +148,9 @@
       read: () => ok({ text: ['[21:14:02] [main/INFO]: Loading Minecraft 1.21.4 with Fabric Loader 0.16.9', '[21:14:03] [main/INFO]: Loading 4 mods', '[21:14:05] [main/WARN]: Mod xaero.jar requested version 1.21.1', '[21:14:07] [Render thread/INFO]: Reloading ResourceManager', '[21:14:09] [Render thread/ERROR]: Failed to load shader pack', 'java.lang.IllegalStateException: shader missing', '\tat net.irisshaders.iris.Iris.load(Iris.java:204)', '[21:14:12] [Render thread/INFO]: Created: 1024x512 atlas'].join('\n') }),
       report: () => ok('Оникс 0.3.0'),
     },
-    modrinth: { tags: () => Promise.reject(new Error('offline')), detail: (id) => ok(projectDetail('modrinth')), search: () => ok({ hits, total_hits: 40 }), project: ok, install: () => ok(['x']) },
-    packs: { import: ok },
+    modrinth: { tags: () => Promise.reject(new Error('offline')), detail: (id) => ok(projectDetail('modrinth')), search: (q) => ok({ hits: hits.map((h, i) => ({ ...h, title: h.title + ((q && q.offset) ? ' #' + (q.offset / 20 + 1) : '') })), total_hits: 340 }), project: ok, install: () => ok(['x']) },
+    onyxvisual: { status: () => ok({ latest: 'v1.0.0', minecraft: '26.2', compatible: true, reason: '', installed: null, outdated: false }), install: () => new Promise((r) => setTimeout(() => r({ version: 'v1.0.0', fabricApi: true }), 600)) },
+    packs: { import: ok, importFrom: ok, pickFile: () => ok(null), classify: (t) => ok(/modrinth/.test(t) ? { kind: 'modrinth' } : /curseforge/.test(t) ? { kind: 'curseforge' } : /\.zip|mrpack/.test(t) ? { kind: 'direct' } : /\/mod\//.test(t) ? { kind: 'unsupported', why: 'Это не сборка' } : null) },
     pathForFile: () => '',
     skins: {
       setCape: ok,

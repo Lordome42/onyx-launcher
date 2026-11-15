@@ -2375,3 +2375,21 @@ body.low-power .mq-track, body.game-running .mq-track { animation-play-state: pa
 .skin-card .x .icon { width: 14px; height: 14px; }
 .cape-card .head { width: 44px; height: 70px; background-size: auto; }
 .p3-bar { flex-wrap: wrap; } .p3-bar .btn { padding: 0 10px; }
+
+/* Импорт сборки */
+.import-drop { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px; border: 2px dashed var(--border-strong); color: var(--text-2); transition: background .15s, border-color .15s; }
+.import-drop > .icon { width: 26px; height: 26px; flex: none; }
+.import-drop > div { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.import-drop b { color: var(--text); }
+.import-drop span { font-size: 12.5px; color: var(--text-3); }
+.import-drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop-overlay { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: color-mix(in srgb, var(--bg) 82%, transparent); border: 3px dashed var(--accent); color: var(--text); pointer-events: none; }
+.drop-overlay[hidden] { display: none; }
+.drop-overlay .icon { width: 40px; height: 40px; color: var(--accent); }
+.drop-overlay b { font-size: 20px; }
+.drop-overlay span { color: var(--text-2); }
+
+/* Постраничная навигация каталога */
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.pager .pg { min-width: 36px; height: 36px; padding: 0 10px; justify-content: center; font-variant-numeric: tabular-nums; }
+.pager .pg-gap { color: var(--text-faint, #74747c); padding: 0 2px; user-select: none; }

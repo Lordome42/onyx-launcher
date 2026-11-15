@@ -11,6 +11,7 @@ import { renderLibrary } from './pages/library.js';
 import { renderInstance } from './pages/instance.js';
 import { renderBrowse } from './pages/browse.js';
 import { renderSettings } from './pages/settings.js';
+import { wireGlobalDrop } from './import-ui.js';
 import { renderStats } from './pages/stats.js';
 import { renderAllShots } from './pages/all-shots.js';
 import { renderSkin } from './pages/skin.js';
@@ -143,6 +144,7 @@ subscribe((what) => {
 
 async function boot() {
   shell();
+  wireGlobalDrop();
   setOpenAccounts(openAccounts);
   try {
     state.settings = await window.api.settings.get();

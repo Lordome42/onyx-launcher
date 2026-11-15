@@ -138,6 +138,34 @@ async function importPack(file, onProgress) {
   throw new Error('Это не сборка: в архиве нет modrinth.index.json или manifest.json');
 }
 
+// Импорт одним действием: ссылка Modrinth или CurseForge, прямая ссылка на файл либо путь к .mrpack/.zip.
+async function importFrom(input, onProgress) {
+  const { parseSource } = require('./importsrc');
+  const src = parseSource(input);
+  if (!src) throw new Error('Не удалось распознать источник. Вставьте ссылку на сборку Modrinth или CurseForge, либо выберите файл .mrpack или .zip.');
+  if (src.kind === 'unsupported') throw new Error(src.why);
+  if (src.kind === 'file') {
+    if (!fs.existsSync(src.path)) throw new Error('Файл не найден: ' + src.path);
+    return importPack(src.path, onProgress);
+  }
+  if (src.kind === 'modrinth') return modrinth.installModpack(src.slug, onProgress, src.version);
+  if (src.kind === 'curseforge') {
+    const modId = src.modId || (await curseforge.resolveSlug(src.slug));
+    return curseforge.installModpack(modId, onProgress, src.fileId);
+  }
+  // прямая ссылка на файл
+  const { downloadFile } = require('./net');
+  const store = require('./store');
+  const tmp = path.join(store.paths.cache, `import-${Date.now()}${/\.mrpack$/i.test(new URL(src.url).pathname) ? '.mrpack' : '.zip'}`);
+  onProgress('Загрузка файла сборки', 0, 0);
+  await downloadFile(src.url, tmp);
+  try {
+    return await importPack(tmp, onProgress);
+  } finally {
+    fs.rmSync(tmp, { force: true });
+  }
+}
+
 // ---------- Добавление файлов в сборку ----------
 const MOD_MARKERS = ['fabric.mod.json', 'quilt.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', 'mcmod.info'];
 
@@ -189,4 +217,4 @@ async function addFiles(id, files) {
   return { added, skipped };
 }
 
-module.exports = { makeIcon, exportMrpack, importPack, addFiles };
+module.exports = { makeIcon, exportMrpack, importPack, importFrom, addFiles };

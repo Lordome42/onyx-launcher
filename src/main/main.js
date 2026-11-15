@@ -210,6 +210,15 @@ handle('packs:import', async () => {
   if (r.canceled) return null;
   return packs.importPack(r.filePaths[0], (stage, done, total) => send('content:progress', { key: 'import', stage, done, total }));
 });
+handle('packs:classify', (text) => {
+  const src = require('./importsrc').parseSource(text);
+  return src ? { kind: src.kind, why: src.why || '' } : null;
+});
+handle('packs:importFrom', (input) => packs.importFrom(input, (stage, done, total) => send('content:progress', { key: 'import', stage, done, total })));
+handle('packs:pickFile', async () => {
+  const r = await dialog.showOpenDialog(win, { title: 'Импорт сборки', properties: ['openFile'], filters: [{ name: 'Сборки', extensions: ['mrpack', 'zip'] }] });
+  return r.canceled ? null : r.filePaths[0];
+});
 handle('instances:pickFiles', async (id) => {
   const r = await dialog.showOpenDialog(win, { title: 'Добавить моды, ресурспаки или шейдеры', properties: ['openFile', 'multiSelections'], filters: [{ name: 'Моды и архивы', extensions: ['jar', 'zip'] }] });
   return r.canceled ? null : packs.addFiles(id, r.filePaths);
@@ -289,6 +298,13 @@ handle('modrinth:install', (instanceId, projectId, versionId) =>
 );
 handle('modrinth:installModpack', (projectId) =>
   modrinth.installModpack(projectId, (stage, done, total) => send('content:progress', { key: `modpack:${projectId}`, stage, done, total }))
+);
+
+// Onyx Visual
+const onyxvisual = require('./onyxvisual');
+handle('onyxvisual:status', (instanceId) => onyxvisual.status(instanceId));
+handle('onyxvisual:install', (instanceId) =>
+  onyxvisual.install(instanceId, (stage) => send('content:progress', { key: instanceId, stage }))
 );
 
 // CurseForge

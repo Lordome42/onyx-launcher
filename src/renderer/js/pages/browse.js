@@ -36,6 +36,9 @@ export async function renderBrowse(view, route) {
   let source = route.query.src === 'curseforge' ? 'curseforge' : 'modrinth';
   let hits = [];
   let total = 0;
+  let page = 1;
+  const PAGE_SIZE = 20;
+  const MAX_PAGES = 250; // API отдаёт не глубже 5000 результатов
   let seq = 0;
   const busy = new Map(); // project_id → подпись на кнопке
   const useTarget = () => target && params.type !== 'modpack';
@@ -76,7 +79,7 @@ export async function renderBrowse(view, route) {
         </div>
     <div class="browse-cols">
       <div style="min-width:0"><div data-results style="display:grid;gap:12px"></div>
-      <div style="display:flex;justify-content:center;margin-top:18px" data-more></div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;margin-top:18px" data-more></div></div>
       <aside class="filters" data-filters aria-label="Фильтры"></aside>
     </div>
   </div>`;
@@ -182,23 +185,56 @@ export async function renderBrowse(view, route) {
         navigate(`/project/${source}/${encodeURIComponent(pid)}${target ? `?instance=${encodeURIComponent(target.id)}` : ''}`);
       })
     );
-    $('[data-more]', view).innerHTML = hits.length < total ? `<button class="btn" data-loadmore>Показать ещё</button>` : '';
-    const more = $('[data-loadmore]', view);
-    if (more)
-      more.addEventListener('click', () => {
-        params.offset = hits.length;
+    drawPager();
+  }
+
+  function pageList(cur, last) {
+    const set = new Set([1, last, cur - 1, cur, cur + 1]);
+    if (cur <= 3) [2, 3, 4].forEach((n) => set.add(n));
+    if (cur >= last - 2) [last - 1, last - 2, last - 3].forEach((n) => set.add(n));
+    const nums = [...set].filter((n) => n >= 1 && n <= last).sort((a, b) => a - b);
+    const out = [];
+    nums.forEach((n, i) => {
+      if (i && n - nums[i - 1] > 1) out.push('…');
+      out.push(n);
+    });
+    return out;
+  }
+
+  function drawPager() {
+    const box = $('[data-more]', view);
+    const last = Math.min(MAX_PAGES, Math.max(1, Math.ceil(total / PAGE_SIZE)));
+    if (!hits.length || last <= 1) {
+      box.innerHTML = '';
+      return;
+    }
+    const btn = (n, label, extra = '') => `<button class="btn sm pg ${n === page ? 'primary' : ''}" data-page="${n}" ${extra} aria-label="Страница ${n}" ${n === page ? 'aria-current="page"' : ''}>${label}</button>`;
+    box.innerHTML = `<nav class="pager" aria-label="Страницы каталога">
+      <button class="btn sm pg" data-page="${page - 1}" ${page <= 1 ? 'disabled' : ''} aria-label="Предыдущая страница">${icon('chevronLeft')}</button>
+      ${pageList(page, last).map((n) => (n === '…' ? '<span class="pg-gap">…</span>' : btn(n, n))).join('')}
+      <button class="btn sm pg" data-page="${page + 1}" ${page >= last ? 'disabled' : ''} aria-label="Следующая страница">${icon('chevronRight')}</button>
+    </nav>
+    <div class="faint" style="text-align:center;margin-top:8px;font-size:12.5px">Страница ${page} из ${last} · найдено ${formatNumber(total)}</div>`;
+    $$('[data-page]', box).forEach((b) =>
+      b.addEventListener('click', () => {
+        const n = Number(b.dataset.page);
+        if (!n || n === page || n < 1 || n > last) return;
+        page = n;
         search(false);
-      });
+        view.scrollTo ? view.scrollTo({ top: 0, behavior: 'smooth' }) : (view.scrollTop = 0);
+      })
+    );
   }
 
   async function search(reset) {
     const my = ++seq;
-    if (reset) {
-      params.offset = 0;
+    if (reset) page = 1;
+    params.offset = (page - 1) * PAGE_SIZE;
+    {
       $('[data-results]', view).innerHTML = Array.from({ length: 5 }, () => '<div class="skeleton" style="height:106px"></div>').join('');
       $('[data-more]', view).innerHTML = '';
     }
-    const q = { ...params, limit: 20 };
+    const q = { ...params, limit: PAGE_SIZE };
     if (useTarget() === false && target) {
       q.gameVersion = '';
       q.loader = '';
@@ -206,7 +242,7 @@ export async function renderBrowse(view, route) {
     try {
       const res = await window.api[source].search(q);
       if (my !== seq || !view.isConnected) return;
-      hits = reset ? res.hits : hits.concat(res.hits);
+      hits = res.hits;
       total = res.total_hits;
       drawResults();
     } catch (err) {

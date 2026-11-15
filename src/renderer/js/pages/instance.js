@@ -93,10 +93,28 @@ async function renderContent(body, inst, view) {
   const countEl = $('[data-count]', view);
   if (countEl) countEl.textContent = items.length;
   const canMods = inst.loader && inst.loader !== 'vanilla';
+  // Баннер Onyx Visual: null — ещё не знаем, {error} — релиза нет/нет сети, иначе статус.
+  let ov = null;
+  let ovBusy = '';
+  const ovBanner = () => {
+    if (!canMods || !ov || ov.error) return '';
+    const sub = ovBusy
+      ? esc(ovBusy)
+      : ov.installed
+        ? `Установлен ${esc(ov.installed)}${ov.outdated ? ` · доступна ${esc(ov.latest)}` : ' · последняя версия'}`
+        : ov.compatible
+          ? `Визуальные эффекты и красивое меню на Right Shift · Minecraft ${esc(ov.minecraft)}`
+          : esc(ov.reason);
+    const label = ov.installed ? (ov.outdated ? 'Обновить' : 'Переустановить') : 'Установить Onyx Visual';
+    return `<div class="target-banner" style="margin-bottom:14px"><div class="project-icon">${icon('sun')}</div>
+      <div class="grow"><b>Onyx Visual</b><div class="muted" style="font-size:12.5px">${sub}</div></div>
+      <button class="btn sm ${ov.installed && !ov.outdated ? '' : 'primary'}" data-ov ${ovBusy || !ov.compatible ? 'disabled' : ''}>${icon('download')}${label}</button></div>`;
+  };
 
   const draw = () => {
     const list = items.filter((i) => (typeFilter === 'all' || i.type === typeFilter) && i.title.toLowerCase().includes(q.toLowerCase()));
     body.innerHTML = `
+      ${ovBanner()}
       <div class="toolbar" style="margin-bottom:14px">
         <div class="search"><label for="ct-q" style="position:absolute;left:-9999px">Поиск контента</label>${icon('search')}<input id="ct-q" class="input" placeholder="Поиск среди установленного" value="${esc(q)}" /></div>
         <div class="segmented">
@@ -149,6 +167,32 @@ async function renderContent(body, inst, view) {
       if (c) c.textContent = items.length;
       draw();
     };
+    $$('[data-ov]', body).forEach((b) =>
+      b.addEventListener('click', async () => {
+        ovBusy = 'Подготовка…';
+        draw();
+        const unsub = window.api.events.onContentProgress((p) => {
+          if (p.key === inst.id) {
+            ovBusy = p.stage;
+            const btn = $('[data-ov]', body);
+            const t = btn && btn.parentElement && btn.parentElement.querySelector('.muted');
+            if (t) t.textContent = p.stage;
+          }
+        });
+        try {
+          const res = await window.api.onyxvisual.install(inst.id);
+          toast('Onyx Visual установлен', `Версия ${res.version}${res.fabricApi ? ', Fabric API добавлен' : ''}. В игре меню открывается на Right Shift.`, 'success');
+          ov = await window.api.onyxvisual.status(inst.id).catch(() => ov);
+          await loadInstances();
+        } catch (err) {
+          toast('Не удалось установить Onyx Visual', err.message, 'error');
+        } finally {
+          if (typeof unsub === 'function') unsub();
+          ovBusy = '';
+          await reload();
+        }
+      })
+    );
     $$('[data-upd]', body).forEach((b) => b.addEventListener('click', () => openUpdates(inst, reload)));
     $$('[data-check]', body).forEach((b) => b.addEventListener('click', () => openAnalysis(inst, reload)));
     $$('[data-file]', body).forEach((b) => b.addEventListener('click', async () => handleAdded(await window.api.instances.pickFiles(inst.id))));
@@ -185,6 +229,9 @@ async function renderContent(body, inst, view) {
     if (countEl) countEl.textContent = items.length;
     draw();
   };
+  if (canMods) {
+    window.api.onyxvisual.status(inst.id).then((st) => { ov = st; if (body.isConnected) draw(); }).catch(() => {});
+  }
   body.addEventListener('dragover', (e) => {
     e.preventDefault();
     body.classList.add('dropping');

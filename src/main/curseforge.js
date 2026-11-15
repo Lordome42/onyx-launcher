@@ -126,10 +126,18 @@ function parseLoader(id) {
   return m ? { loader: m[1], loaderVersion: m[2] } : { loader: 'vanilla', loaderVersion: '' };
 }
 
-async function installModpack(modId, onProgress) {
+// slug → числовой идентификатор проекта
+async function resolveSlug(slug) {
+  const res = await cf(`/mods/search?gameId=${GAME}&classId=${CLASS.modpack}&slug=${encodeURIComponent(slug)}`);
+  const hit = (res.data || []).find((m) => m.slug === slug) || (res.data || [])[0];
+  if (!hit) throw new Error('Сборка не найдена на CurseForge. Проверьте ссылку.');
+  return hit.id;
+}
+
+async function installModpack(modId, onProgress, fileId = null) {
   const mod = (await cf(`/mods/${modId}`)).data;
-  const files = (await cf(`/mods/${modId}/files?pageSize=20`)).data;
-  const file = pickFile(files);
+  if (mod.classId && mod.classId !== CLASS.modpack) throw new Error(`«${mod.name}» это не сборка. Добавьте его через каталог.`);
+  const file = fileId ? (await cf(`/mods/${modId}/files/${fileId}`)).data : pickFile((await cf(`/mods/${modId}/files?pageSize=20`)).data);
   if (!file) throw new Error('У этой сборки нет файлов для скачивания');
   if (!file.downloadUrl) throw new Error(`${manual(mod)}. Откройте страницу сборки на CurseForge.`);
 
@@ -234,4 +242,4 @@ async function latestFile(instance, modId, type) {
   return files.length ? pickFile(files) : null;
 }
 
-module.exports = { detail, latestFile, search, install, installModpack, importCfPack };
+module.exports = { resolveSlug, detail, latestFile, search, install, installModpack, importCfPack };
