@@ -89,7 +89,7 @@
   window.api = {
     platform: 'win32',
     window: { minimize: ok, maximize: ok, close: ok, onState: noop },
-    app: { info: () => ok({ version: '0.3.6', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
+    app: { info: () => ok({ version: '0.3.7', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
     settings: { get: () => ok(settings), set: (p) => ok((settings = { ...settings, ...p })), openDataDir: ok },
     accounts: { list: () => ok(accounts), loginMicrosoft: ok, addOffline: ok, select: (id) => ok((accounts.selected = id, accounts)), remove: () => ok(accounts) },
     versions: {

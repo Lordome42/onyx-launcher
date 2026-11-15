@@ -48,6 +48,7 @@ export async function renderSkin(view) {
   if (!view.isConnected) return;
 
   const panel = $('[data-panel]', view);
+  if (profile.skinFailed) toast('Не удалось загрузить скин', 'Проверьте интернет и откройте страницу ещё раз. Если не помогает, экспортируйте отладочную информацию в настройках.', 'error');
   let slim = profile.variant === 'slim';
   let skinSrc = profile.skinUrl || null; // что сейчас показано в превью
   let showCape = true;

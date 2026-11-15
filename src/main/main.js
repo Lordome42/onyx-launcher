@@ -17,6 +17,7 @@ const maintenance = require('./maintenance');
 const javaProfiles = require('./javaprofiles');
 const skinlib = require('./skinlib');
 const rpc = require('./rpc');
+const textures = require('./textures');
 app.on('will-quit', () => rpc.shutdown());
 
 // Лёгкий запуск: меньше памяти у интерфейса, без лишних фоновых служб Chromium.
@@ -115,11 +116,11 @@ handle('datadir:move', (dir) => datadir.move(dir, (stage, done, total) => send('
 handle('settings:openDataDir', () => shell.openPath(store.paths.root));
 
 // Аккаунты
-handle('accounts:list', () => auth.listAccounts());
-handle('accounts:loginMicrosoft', () => auth.loginMicrosoft(win));
-handle('accounts:addOffline', (name) => auth.addOffline(name));
-handle('accounts:select', (id) => auth.selectAccount(id));
-handle('accounts:remove', (id) => auth.removeAccount(id));
+handle('accounts:list', () => textures.withAccountTextures(auth.listAccounts()));
+handle('accounts:loginMicrosoft', () => textures.withAccountTextures(auth.loginMicrosoft(win)));
+handle('accounts:addOffline', (name) => textures.withAccountTextures(auth.addOffline(name)));
+handle('accounts:select', (id) => textures.withAccountTextures(auth.selectAccount(id)));
+handle('accounts:remove', (id) => textures.withAccountTextures(auth.removeAccount(id)));
 
 // Версии
 handle('versions:list', () => minecraft.listVersions());
@@ -277,7 +278,7 @@ handle('java:install', async (component) => {
   await minecraft.ensureJava(component, (done, total) => send('content:progress', { key: 'java', stage: `Загрузка ${comp.label}`, done, total }));
   return javaProfiles.list();
 });
-handle('accounts:loginEly', (u, p, code) => auth.loginEly(u, p, code));
+handle('accounts:loginEly', (u, p, code) => textures.withAccountTextures(auth.loginEly(u, p, code)));
 
 // Modrinth
 handle('modrinth:search', (params) => modrinth.search(params));

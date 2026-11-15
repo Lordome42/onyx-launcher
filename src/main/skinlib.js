@@ -50,9 +50,11 @@ function addFile(file, name, variant) {
 }
 
 async function addUrl(url, name, variant) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Не удалось скачать скин (${res.status})`);
-  return addBuffer(Buffer.from(await res.arrayBuffer()), name, variant);
+  // принимает и data-URL, который интерфейс получил от основного процесса
+  if (String(url).startsWith('data:')) return addBuffer(Buffer.from(url.split(',')[1], 'base64'), name, variant);
+  const data = await require('./textures').toDataUrl(url);
+  if (!data) throw new Error('Не удалось скачать скин: проверьте интернет.');
+  return addBuffer(Buffer.from(data.split(',')[1], 'base64'), name, variant);
 }
 
 function remove(id) {

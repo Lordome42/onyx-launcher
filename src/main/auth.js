@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const { fetchJson } = require('./net');
 const store = require('./store');
+const textures = require('./textures');
 
 // Публичный client id официального лаунчера Minecraft для потока login.live.com.
 // В настройках можно указать собственный client id приложения Azure.
@@ -316,11 +317,12 @@ async function skinProfile(id) {
     const skin = (profile.skins || []).find((s) => s.state === 'ACTIVE') || (profile.skins || [])[0];
     account.skinUrl = skin ? skin.url : null;
     store.saveAccounts(data);
-    const capes = (profile.capes || []).map((c) => ({ id: c.id, url: c.url, alias: c.alias || 'Плащ', active: c.state === 'ACTIVE' }));
-    return { type: 'msa', name: account.name, skinUrl: account.skinUrl, variant: skin ? (skin.variant || 'CLASSIC').toLowerCase() : 'classic', capes };
+    const capes = await Promise.all((profile.capes || []).map(async (c) => ({ id: c.id, url: await textures.toDataUrl(c.url), alias: c.alias || 'Плащ', active: c.state === 'ACTIVE' })));
+    return { type: 'msa', name: account.name, skinUrl: await textures.toDataUrl(account.skinUrl), skinFailed: !!account.skinUrl && !(await textures.toDataUrl(account.skinUrl)), variant: skin ? (skin.variant || 'CLASSIC').toLowerCase() : 'classic', capes };
   }
   if (account.type === 'ely') {
-    return { type: 'ely', name: account.name, skinUrl: `${account.skinUrl}?t=${Date.now()}`, variant: 'classic' };
+    const ely = await textures.toDataUrl(`${account.skinUrl}?t=${Date.now()}`, { fresh: true });
+    return { type: 'ely', name: account.name, skinUrl: ely, skinFailed: !ely, variant: 'classic' };
   }
   return { type: 'offline', name: account.name, skinUrl: null, variant: 'classic' };
 }

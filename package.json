@@ -1,7 +1,7 @@
 {
   "name": "onyx-launcher",
   "productName": "Оникс",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Оникс — лаунчер Minecraft с самурайским оформлением: лицензия, офлайн и Ely.by, Fabric/Quilt/Forge/NeoForge, Modrinth и CurseForge",
   "main": "src/main/main.js",
   "license": "MIT",
