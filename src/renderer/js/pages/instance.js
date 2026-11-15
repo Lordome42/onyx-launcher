@@ -1,5 +1,6 @@
 import { state, loadInstances, loadVersions, subscribe } from '../state.js';
 import { icon } from '../icons.js';
+import { javaOptions } from '../java-ui.js';
 import { esc, instIcon, cube, coverStyle, LOADERS, $, $$, toast, confirmDialog, confirmSoft, formatDuration, timeAgo, formatSize, progressModal } from '../ui.js';
 import { navigate } from '../router.js';
 import { updateLive, togglePlay } from '../actions.js';
@@ -238,6 +239,10 @@ function renderSettings(body, inst) {
         <div class="ctl"><label for="is-jvm" style="position:absolute;left:-9999px">Аргументы JVM</label><input id="is-jvm" class="input" style="width:280px" placeholder="-XX:+UseG1GC" value="${esc(inst.jvmArgs || '')}" /></div>
       </div>
       <div class="setting">
+        <div class="txt"><b>Профиль Java</b><span data-java-need>Какая Java будет использована для этой сборки.</span></div>
+        <div class="ctl"><select class="select" id="is-jprof" style="width:280px" aria-label="Профиль Java"><option>Загрузка…</option></select></div>
+      </div>
+      <div class="setting">
         <div class="txt"><b>Своя Java</b><span>Путь к java/javaw. Оставьте пустым — нужная версия Java скачается автоматически.</span></div>
         <div class="ctl"><label for="is-java" style="position:absolute;left:-9999px">Путь к Java</label><input id="is-java" class="input" style="width:280px" placeholder="Автоматически" value="${esc(inst.javaPath || '')}" /></div>
       </div>
@@ -312,6 +317,14 @@ function renderSettings(body, inst) {
   $('[data-export]', body).addEventListener('click', () => exportDialog(inst));
   $('#is-name', body).addEventListener('change', (e) => e.target.value.trim() && save({ name: e.target.value.trim() }));
   $('#is-jvm', body).addEventListener('change', (e) => save({ jvmArgs: e.target.value.trim() }));
+  Promise.all([window.api.java.list(), window.api.java.required(inst.version)]).then(([list, major]) => {
+    const sel = $('#is-jprof', body);
+    if (!sel) return;
+    sel.innerHTML = javaOptions(list, inst.javaProfile || 'default', { withDefault: true });
+    const need = $('[data-java-need]', body);
+    if (need) need.textContent = `Версии ${inst.version} обычно нужна Java ${major}. «Автоматически» подберёт и скачает её сама.`;
+  }).catch(() => {});
+  $('#is-jprof', body).addEventListener('change', (e) => save({ javaProfile: e.target.value }));
   $('#is-java', body).addEventListener('change', (e) => save({ javaPath: e.target.value.trim() }));
   $('[data-mem-custom]', body).addEventListener('click', (e) => {
     const on = !e.currentTarget.classList.contains('on');

@@ -80,7 +80,9 @@ async function remove(id) {
 
 function recordPlay(id, playedMs) {
   const meta = get(id);
-  return update(id, { lastPlayed: Date.now(), playTime: (meta.playTime || 0) + Math.max(0, playedMs || 0) });
+  const ms = Math.max(0, playedMs || 0);
+  const sessions = ms >= 10000 ? [...(meta.sessions || []), [Date.now() - ms, ms]].slice(-400) : meta.sessions || [];
+  return update(id, { lastPlayed: Date.now(), playTime: (meta.playTime || 0) + ms, sessions });
 }
 
 // Список установленного контента (моды, ресурспаки, шейдеры): иконки и названия берутся из самих файлов.

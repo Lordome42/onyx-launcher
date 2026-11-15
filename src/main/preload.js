@@ -41,7 +41,9 @@ contextBridge.exposeInMainWorld('api', {
   analyze: { run: call('analyze:run'), installDep: call('analyze:installDep') },
   shots: { list: call('shots:list'), thumb: call('shots:thumb'), full: call('shots:full'), copy: call('shots:copy'), delete: call('shots:delete'), reveal: call('shots:reveal') },
   logs: { list: call('logs:list'), read: call('logs:read'), report: call('logs:report') },
-  skins: { profile: call('skins:profile'), pick: call('skins:pick'), set: call('skins:set'), reset: call('skins:reset') },
+  skinlib: { list: call('skinlib:list'), addFile: call('skinlib:addFile'), addUrl: call('skinlib:addUrl'), remove: call('skinlib:remove'), rename: call('skinlib:rename'), variant: call('skinlib:variant'), apply: call('skinlib:apply') },
+  java: { list: call('java:list'), required: call('java:required'), detect: call('java:detect'), pick: call('java:pick'), addCustom: call('java:addCustom'), removeCustom: call('java:removeCustom'), install: call('java:install') },
+  skins: { setCape: call('skins:setCape'), profile: call('skins:profile'), pick: call('skins:pick'), set: call('skins:set'), reset: call('skins:reset') },
   versions: { list: call('versions:list'), loaders: call('versions:loaders'), loaderGames: call('versions:loaderGames') },
   instances: {
     list: call('instances:list'),

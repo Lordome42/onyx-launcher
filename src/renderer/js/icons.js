@@ -1,5 +1,6 @@
 // Набор линейных иконок (24×24, обводка). Нарисованы для Оникс.
 const PATHS = {
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   pin: '<path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/>',
   server: '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h0M7 16.5h0"/>',
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',

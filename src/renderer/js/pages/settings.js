@@ -1,6 +1,7 @@
 import { state, notify } from '../state.js';
 import { icon } from '../icons.js';
 import { esc, $, $$, toast, confirmDialog, progressModal } from '../ui.js';
+import { javaOptions, mountJavaProfiles } from '../java-ui.js';
 import { THEMES, applyTheme, themePreview } from '../themes.js';
 
 async function save(patch) {
@@ -68,12 +69,18 @@ export async function renderSettings(view) {
             ${row('Вкладка «Скриншоты»', 'Снимки экрана из игры.', toggle('showTabShots', true))}
             <div class="setting stack" style="padding-bottom:0"><div class="txt"><b>Боковая панель</b><span>Что показывать в узкой панели слева.</span></div></div>
             ${row('Кнопка всех скриншотов', 'Одна страница со снимками из всех сборок.', toggle('railShots', true))}
+            ${row('Кнопка статистики', 'Время игры по неделям и любимые сборки.', toggle('railStats', true))}
             ${row('Кнопка выбора скина', 'Быстрый переход к смене скина.', toggle('railSkin', true))}
             ${row('Количество сборок на панели', 'Закреплённые сборки идут первыми. 0 скрывает список.', range('railCount', 0, 20, 6, ''))}
             <div class="setting stack" style="padding-bottom:0"><div class="txt"><b>Главная и контент</b><span>Внешний вид главной страницы и библиотеки.</span></div></div>
             ${row('Недавние сборки и миры', 'Блок «Последние сервера и сборки» на главной.', toggle('showRecent', true))}
             ${row('Компактный список в библиотеке', 'Сборки отображаются строками вместо карточек.', toggle('compactLibrary', false))}
             ${row('Время игры в сборках', 'Показывать, сколько вы наиграли, на карточке сборки.', toggle('showPlayTime', true))}
+            ${row('Discord Rich Presence', 'Показывать в Discord, в какую сборку вы играете.', toggle('discordRpc', true))}
+            <div class="setting">
+              <div class="txt"><b>ID приложения Discord</b><span>Создайте приложение на discord.com/developers, скопируйте Application ID и вставьте сюда. Для красивой иконки загрузите картинку с именем «onyx» в Rich Presence → Art Assets.</span></div>
+              <div class="ctl"><label for="st-dc" style="position:absolute;left:-9999px">ID приложения Discord</label><input id="st-dc" class="input" style="width:220px" inputmode="numeric" placeholder="1234567890123456789" value="${esc(s.discordClientId || '')}" /><button class="btn" data-dc-site>${icon('external')}Открыть</button></div>
+            </div>
             ${row('Скрывать имя на странице скина', 'Убирает ник над скином, например для скриншотов.', toggle('hideSkinName', false))}
           </div>
         </section>
@@ -96,6 +103,14 @@ export async function renderSettings(view) {
               </div>
               <input type="range" id="st-mem" min="1024" max="16384" step="512" value="${s.memoryMax}" aria-label="Максимум памяти" />
               <div style="display:flex;justify-content:space-between" class="faint"><span>1 ГБ</span><span>16 ГБ</span></div>
+            </div>
+            <div class="setting">
+              <div class="txt"><b>Профиль Java по умолчанию</b><span>«Автоматически» подбирает среду под версию игры: Java 8, 17 или 21. У отдельной сборки можно выбрать свой профиль.</span></div>
+              <div class="ctl"><select class="select" id="st-jprof" style="width:280px" aria-label="Профиль Java"><option>Загрузка…</option></select></div>
+            </div>
+            <div class="setting stack">
+              <div class="txt"><b>Профили Java</b><span>Скачайте нужную среду заранее или добавьте свою установку Java.</span></div>
+              <div data-java-profiles></div>
             </div>
             <div class="setting">
               <div class="txt"><b>Путь к Java</b><span>По умолчанию лаунчер сам скачивает нужную версию Java от Mojang для каждой версии игры.</span></div>
@@ -241,6 +256,15 @@ export async function renderSettings(view) {
   $('#st-jvm', view).addEventListener('change', (e) => save({ jvmArgs: e.target.value.trim() }));
   $('#st-w', view).addEventListener('change', (e) => save({ gameWidth: Math.max(640, Number(e.target.value) || 1280) }));
   $('#st-h', view).addEventListener('change', (e) => save({ gameHeight: Math.max(480, Number(e.target.value) || 720) }));
+  $('#st-dc', view).addEventListener('change', (e) => save({ discordClientId: e.target.value.replace(/\D/g, '') }));
+  $('[data-dc-site]', view).addEventListener('click', () => window.api.app.openExternal('https://discord.com/developers/applications'));
+  const jsel = $('#st-jprof', view);
+  const fillJava = (list) => {
+    jsel.innerHTML = javaOptions(list, state.settings.javaProfile || 'auto');
+  };
+  window.api.java.list().then(fillJava).catch(() => {});
+  jsel.addEventListener('change', () => save({ javaProfile: jsel.value }));
+  mountJavaProfiles($('[data-java-profiles]', view), fillJava);
   $('#st-cf', view).addEventListener('change', (e) => save({ curseforgeKey: e.target.value.trim() }));
   $('[data-cf-site]', view).addEventListener('click', () => window.api.app.openExternal('https://console.curseforge.com/'));
   $('[data-upd-check]', view).addEventListener('click', async () => {

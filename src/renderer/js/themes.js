@@ -11,6 +11,8 @@ export const THEMES = [
   { id: 'skulk', name: 'Скалк', bg: '#050b10', panel: '#08131a', card: '#12262f', accent: '#2fe0d6', hero: 'radial-gradient(circle at 80% 50%,#2fe0d6 0 14%,#08161e 60%)' },
   { id: 'lush', name: 'Пышные пещеры', bg: '#08110a', panel: '#0d1a0f', card: '#1b3122', accent: '#ff9a4d', hero: 'linear-gradient(120deg,#5ea83a,#0e2012 55%,#ff9a4d)' },
   { id: 'cherry', name: 'Вишнёвая роща', bg: '#fbe6ee', panel: '#fff3f7', card: '#ffffff', accent: '#e0668f', hero: 'linear-gradient(120deg,#ffb7d0,#ffd6be)' },
+  { id: 'end', name: 'Энд', bg: '#09050f', panel: '#10091b', card: '#201334', accent: '#c77dff', hero: 'radial-gradient(circle at 80% 50%,#c77dff 0 12%,#1a0d2e 55%,#09050f)' },
+  { id: 'nightsky', name: 'Ночное небо', bg: '#050813', panel: '#0a1022', card: '#141d3a', accent: '#8fb4ff', hero: 'radial-gradient(circle at 82% 40%,#dfe9ff 0 9%,#16224a 40%,#050813)' },
   { id: 'ocean', name: 'Океан', bg: '#080d18', panel: '#0c1322', card: '#172238', accent: '#4da3ff', hero: 'linear-gradient(120deg,#1d4f9a,#0f6f7c)' },
 ];
 

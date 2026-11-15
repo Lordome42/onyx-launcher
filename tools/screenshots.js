@@ -43,6 +43,11 @@ const server = http.createServer((req, res) => {
   await shot('17-settings-features', 'samurai', '#/settings', (p) => p.click('[data-sec=features]'));
   await shot('18-settings-storage', 'samurai', '#/settings', (p) => p.click('[data-sec=storage]'));
   await shot('19-all-shots', 'samurai', '#/shots');
+  await shot('20-stats', 'samurai', '#/stats');
+  await shot('21-skin-3d', 'samurai', '#/skin', null);
+  await shot('22-theme-end', 'end', '#/home');
+  await shot('23-theme-nightsky', 'nightsky', '#/home');
+  await shot('24-java', 'samurai', '#/settings', (p) => p.click('[data-sec=java]'));
   await shot('theme-picker', 'skulk', '#/settings');
   await shot('14-home', 'samurai', '#/home');
   await shot('15-home-empty', 'samurai', '#/home', null, '&empty=1');

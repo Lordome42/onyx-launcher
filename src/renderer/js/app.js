@@ -11,6 +11,7 @@ import { renderLibrary } from './pages/library.js';
 import { renderInstance } from './pages/instance.js';
 import { renderBrowse } from './pages/browse.js';
 import { renderSettings } from './pages/settings.js';
+import { renderStats } from './pages/stats.js';
 import { renderAllShots } from './pages/all-shots.js';
 import { renderSkin } from './pages/skin.js';
 import { renderProject } from './pages/project.js';
@@ -22,6 +23,7 @@ const PAGES = {
   instance: { render: renderInstance, title: 'Сборка', live: true },
   browse: { render: renderBrowse, title: 'Каталог' },
   settings: { render: renderSettings, title: 'Настройки' },
+  stats: { render: renderStats, title: 'Статистика', live: true },
   shots: { render: renderAllShots, title: 'Скриншоты' },
   skin: { render: renderSkin, title: 'Скин' },
   project: { render: renderProject, title: 'Каталог' },
@@ -59,6 +61,7 @@ function renderRail() {
     <button class="rail-btn nav ${is('home') ? 'active' : ''}" data-go="/home" data-tip="Главная" aria-label="Главная">${icon('home')}</button>
     <button class="rail-btn nav ${is('browse') || is('project') ? 'active' : ''}" data-go="/browse" data-tip="Каталог" aria-label="Каталог">${icon('compass')}</button>
     ${state.settings.railSkin !== false ? `<button class="rail-btn nav ${is('skin') ? 'active' : ''}" data-go="/skin" data-tip="Скин" aria-label="Скин">${icon('shirt')}</button>` : ''}
+    ${state.settings.railStats !== false ? `<button class="rail-btn nav ${is('stats') ? 'active' : ''}" data-go="/stats" data-tip="Статистика" aria-label="Статистика">${icon('chart')}</button>` : ''}
     ${state.settings.railShots !== false ? `<button class="rail-btn nav ${is('shots') ? 'active' : ''}" data-go="/shots" data-tip="Все скриншоты" aria-label="Все скриншоты">${icon('image')}</button>` : ''}
     <button class="rail-btn nav ${is('library') ? 'active' : ''}" data-go="/library" data-tip="Библиотека" aria-label="Библиотека">${icon('library')}</button>
     ${recent.length ? '<div class="rail-sep"></div>' : ''}

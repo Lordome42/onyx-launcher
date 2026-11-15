@@ -1,5 +1,6 @@
 // Демо-данные для просмотра интерфейса в обычном браузере (без Electron). Используется только для скриншотов.
 (function () {
+  const __ses = (n) => Array.from({ length: n }, (_, i) => [Date.now() - (i * 1.7 + Math.random()) * 86400e3, (0.5 + ((i * 7) % 5)) * 3600e3]);
   const svgIcon = (h, ch) =>
     'data:image/svg+xml,' +
     encodeURIComponent(
@@ -7,8 +8,8 @@
     );
   const now = Date.now();
   const instances = [
-    { id: 'survival', name: 'Выживание с друзьями', version: '1.21.4', loader: 'fabric', loaderVersion: '0.16.9', hue: 262, pinned: true, recent: [{ type: 'server', key: 'play.example.com', label: 'Мой сервер', at: now - 3600e3 }, { type: 'world', key: 'World1', label: 'Новый мир', at: now - 5 * 3600e3 }], lastPlayed: now - 2 * 3600e3, playTime: 41 * 3600e3, content: { 'sodium.jar': { projectId: 'AANobbMI' } } },
-    { id: 'tech', name: 'Техно-сборка', version: '1.20.1', loader: 'forge', hue: 190, pinned: true, lastPlayed: now - 3 * 86400e3, playTime: 12 * 3600e3, content: {} },
+    { id: 'survival', name: 'Выживание с друзьями', version: '1.21.4', loader: 'fabric', loaderVersion: '0.16.9', hue: 262, pinned: true, recent: [{ type: 'server', key: 'play.example.com', label: 'Мой сервер', at: now - 3600e3 }, { type: 'world', key: 'World1', label: 'Новый мир', at: now - 5 * 3600e3 }], lastPlayed: now - 2 * 3600e3, playTime: 41 * 3600e3, sessions: __ses(24), content: { 'sodium.jar': { projectId: 'AANobbMI' } } },
+    { id: 'tech', name: 'Техно-сборка', version: '1.20.1', loader: 'forge', hue: 190, pinned: true, lastPlayed: now - 3 * 86400e3, playTime: 12 * 3600e3, sessions: __ses(9).map(([a, m]) => [a - 86400e3, m]), content: {} },
     { id: 'vanilla', name: 'Ванилла 1.21', version: '1.21.4', loader: 'vanilla', hue: 125, lastPlayed: now - 9 * 86400e3, playTime: 5 * 3600e3, content: {} },
     { id: 'skyblock', name: 'Скайблок', version: '1.19.2', loader: 'fabric', hue: 40, lastPlayed: 0, playTime: 0, content: {} },
     { id: 'retro', name: 'Ретро 1.8.9', version: '1.8.9', loader: 'vanilla', hue: 340, lastPlayed: now - 40 * 86400e3, playTime: 2 * 3600e3, content: {} },
@@ -77,6 +78,10 @@
     g.fillStyle = '#2b4a9a'; g.fillRect(10, 12, 1, 1); g.fillRect(13, 12, 1, 1);
     g.fillStyle = '#8a5a3d'; g.fillRect(11, 14, 2, 1);
     g.fillStyle = '#3b2a1c'; g.fillRect(40, 8, 8, 3);
+    g.fillStyle = '#c68e6b'; g.fillRect(0, 0, 32, 16); g.fillStyle = '#3b2a1c'; g.fillRect(0, 0, 32, 4);
+    g.fillStyle = '#2b4a9a'; g.fillRect(16, 16, 24, 16); g.fillRect(40, 16, 16, 16); g.fillRect(32, 48, 16, 16);
+    g.fillStyle = '#4a3a8a'; g.fillRect(0, 16, 16, 16); g.fillRect(16, 48, 16, 16);
+    g.fillStyle = '#c68e6b'; g.fillRect(44, 20, 4, 12); g.fillRect(36, 52, 4, 12);
     return c.toDataURL('image/png');
   })();
   const ok = (v) => Promise.resolve(JSON.parse(JSON.stringify(v)));
@@ -84,7 +89,7 @@
   window.api = {
     platform: 'win32',
     window: { minimize: ok, maximize: ok, close: ok, onState: noop },
-    app: { info: () => ok({ version: '0.3.5', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
+    app: { info: () => ok({ version: '0.3.6', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
     settings: { get: () => ok(settings), set: (p) => ok((settings = { ...settings, ...p })), openDataDir: ok },
     accounts: { list: () => ok(accounts), loginMicrosoft: ok, addOffline: ok, select: (id) => ok((accounts.selected = id, accounts)), remove: () => ok(accounts) },
     versions: {
@@ -147,12 +152,15 @@
     packs: { import: ok },
     pathForFile: () => '',
     skins: {
+      setCape: ok,
       profile: (id) => ok({ type: id === 'a1' ? 'msa' : id === 'a2' ? 'ely' : 'offline', name: 'x', skinUrl: skinDataUrl, variant: 'classic' }),
       pick: ok, set: ok, reset: ok,
     },
     curseforge: { detail: () => ok(projectDetail('curseforge')), search: () => ok({ hits: hits.map((h) => ({ ...h, source: 'curseforge', display_categories: ['Technology', 'Magic'] })), total_hits: 40 }), install: () => ok({ installed: ['x'], skipped: [] }), installModpack: () => ok({ instance: instances[0], manual: [] }) },
     update: { state: () => ok({ status: 'idle' }), check: () => ok({ status: 'none' }), download: ok, install: ok },
     storage: { info: () => ok({ own: 2.4e9, shared: 3.9e9, extra: 0.6e9, cache: 0.9e9, total: 6.9e9, dir: 'C:\\Users\\User\\AppData\\Roaming\\.onyx-launcher' }), cleanExtra: () => ok({ freed: 6e8 }), clearCache: () => ok({ freed: 9e8 }), prune: ok, backupNow: () => ok({ dir: 'backups/2026-11-15' }), openBackups: ok, exportDebug: () => ok(null) },
+    java: { list: () => ok({ mojang: [{ id: 'jre-legacy', major: 8, label: 'Java 8', hint: 'Minecraft до 1.16', installed: false }, { id: 'java-runtime-gamma', major: 17, label: 'Java 17 (gamma)', hint: 'Minecraft 1.18 – 1.21', installed: true }, { id: 'java-runtime-delta', major: 21, label: 'Java 21', hint: 'Minecraft 1.20.5 и новее', installed: true }], custom: [{ id: 'a1', name: 'Temurin 21', path: 'C:\\Program Files\\Eclipse Adoptium\\jdk-21\\bin\\javaw.exe' }] }), required: () => ok(21), detect: () => ok([]), pick: ok, addCustom: ok, removeCustom: ok, install: ok },
+    skinlib: { list: () => ok([{ id: 's1', name: 'Самурай', variant: 'classic', dataUrl: skinDataUrl }, { id: 's2', name: 'Ниндзя', variant: 'slim', dataUrl: skinDataUrl }, { id: 's3', name: 'Мой старый', variant: 'classic', dataUrl: skinDataUrl }]), addFile: ok, addUrl: ok, remove: ok, rename: ok, variant: ok, apply: ok },
     datadir: { info: () => ok({ dir: 'C:\\Users\\User\\AppData\\Roaming\\.onyx-launcher', size: 6.4e9, free: 3.1e9 }), choose: () => ok('D:\\Games'), move: ok },
     events: { onUpdate: noop, onProgress: noop, onStarted: noop, onLogs: noop, onVisibility: noop, onExit: noop, onContentProgress: noop },
   };

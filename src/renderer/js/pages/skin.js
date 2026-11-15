@@ -1,56 +1,12 @@
-// Страница скина: превью, загрузка скина (Microsoft) и переход на Ely.by для «пиратских» аккаунтов.
+// Страница скина: 3D-предпросмотр, библиотека скинов, плащи, загрузка (Microsoft) и Ely.by для «пиратских» аккаунтов.
 import { state, currentAccount, loadAccounts } from '../state.js';
 import { icon } from '../icons.js';
 import { esc, $, $$, avatar, toast, ACCOUNT_KIND } from '../ui.js';
 import { openAccounts } from '../modals.js';
+import { createViewer } from '../skin3d.js';
 
-// Рисует вид спереди (16×32 пикселя) из текстуры скина 64×64 или 64×32.
-function drawSkin(canvas, img, slim) {
-  const ctx = canvas.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
-  ctx.clearRect(0, 0, 16, 32);
-  const legacy = img.height === 32;
-  const arm = slim ? 3 : 4;
-  const part = (sx, sy, sw, sh, dx, dy, flip = false) => {
-    if (flip) {
-      ctx.save();
-      ctx.translate(dx + sw, dy);
-      ctx.scale(-1, 1);
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-      ctx.restore();
-    } else ctx.drawImage(img, sx, sy, sw, sh, dx, dy, sw, sh);
-  };
-  // база
-  part(8, 8, 8, 8, 4, 0);
-  part(20, 20, 8, 12, 4, 8);
-  part(44, 20, arm, 12, slim ? 1 : 0, 8);
-  part(4, 20, 4, 12, 4, 20);
-  if (legacy) {
-    part(44, 20, arm, 12, 12, 8, true);
-    part(4, 20, 4, 12, 8, 20, true);
-  } else {
-    part(36, 52, arm, 12, 12, 8);
-    part(20, 52, 4, 12, 8, 20);
-  }
-  // второй слой
-  part(40, 8, 8, 8, 4, 0);
-  if (!legacy) {
-    part(20, 36, 8, 12, 4, 8);
-    part(44, 36, arm, 12, slim ? 1 : 0, 8);
-    part(52, 52, arm, 12, 12, 8);
-    part(4, 36, 4, 12, 4, 20);
-    part(4, 52, 4, 12, 8, 20);
-  }
-}
-
-function loadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Не удалось загрузить изображение скина'));
-    img.src = src;
-  });
-}
+const headStyle = (url) => `background-image:url('${url}'),url('${url}');background-size:448px 448px,448px 448px;background-position:-56px -56px,-280px -56px`;
+const capeStyle = (url) => `background-image:url('${url}');background-size:282px 141px;background-position:-4.4px -4.4px;width:44px;height:70px`;
 
 export async function renderSkin(view) {
   const acc = currentAccount();
@@ -66,9 +22,21 @@ export async function renderSkin(view) {
     <div class="section-head" style="margin-bottom:20px"><div><h1>Скин</h1><div class="muted" style="margin-top:4px">${state.settings.hideSkinName ? ACCOUNT_KIND[acc.type] : `${esc(acc.name)} · ${ACCOUNT_KIND[acc.type]}`}</div></div>
       <div style="display:flex;align-items:center;gap:10px">${avatar(acc, 'lg')}</div></div>
     <div class="skin-stage">
-      <div class="skin-preview"><canvas width="16" height="32" data-canvas></canvas></div>
-      <div data-panel><div class="skeleton" style="height:200px"></div></div>
+      <div style="position:relative"><div data-viewer></div>
+        <div class="p3-bar">
+          <button class="btn sm" data-face="front">Спереди</button>
+          <button class="btn sm" data-face="back">Сзади</button>
+          <button class="btn sm" data-spin>${icon('refresh')}Вращать</button>
+          <button class="btn sm" data-cape-toggle hidden>Плащ</button>
+        </div></div>
+      <div class="skin-col" data-panel><div class="skeleton" style="height:200px"></div></div>
     </div></div>`;
+
+  const viewer = createViewer($('[data-viewer]', view), { lowPower: !!state.settings.lowPower });
+  const bar = (sel) => $(sel, view);
+  bar('[data-face="front"]').addEventListener('click', () => viewer.face('front'));
+  bar('[data-face="back"]').addEventListener('click', () => viewer.face('back'));
+  bar('[data-spin]').addEventListener('click', () => viewer.setAuto(!viewer.isAuto()));
 
   let profile;
   try {
@@ -79,26 +47,92 @@ export async function renderSkin(view) {
   }
   if (!view.isConnected) return;
 
-  const canvas = $('[data-canvas]', view);
-  let slim = profile.variant === 'slim';
-  let image = null;
-  const paint = async (src) => {
-    try {
-      image = await loadImage(src);
-      drawSkin(canvas, image, slim);
-    } catch {
-      /* превью недоступно */
-    }
-  };
-  if (profile.skinUrl) paint(profile.skinUrl);
-  else paint('data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"/>'));
-
   const panel = $('[data-panel]', view);
+  let slim = profile.variant === 'slim';
+  let skinSrc = profile.skinUrl || null; // что сейчас показано в превью
+  let showCape = true;
+  let library = [];
+  let selected = null; // выбранный в библиотеке скин
+  let picked = null; // файл, выбранный с диска
 
-  if (profile.type === 'msa') {
-    let picked = null;
-    const draw = () => {
-      panel.innerHTML = `<div class="settings-group">
+  const activeCape = () => (profile.capes || []).find((c) => c.active) || null;
+  const preview = () => viewer.set({ skin: skinSrc, slim, cape: activeCape() ? activeCape().url : null, showCape });
+  const capeBtn = bar('[data-cape-toggle]');
+  capeBtn.hidden = !activeCape();
+  capeBtn.addEventListener('click', () => {
+    showCape = !showCape;
+    capeBtn.classList.toggle('primary', showCape);
+    preview();
+  });
+  capeBtn.classList.toggle('primary', true);
+  preview();
+
+  const isMsa = profile.type === 'msa';
+
+  async function loadLibrary() {
+    try {
+      library = await window.api.skinlib.list();
+    } catch {
+      library = [];
+    }
+  }
+  await loadLibrary();
+
+  const refreshProfile = async () => {
+    profile = await window.api.skins.profile(acc.id);
+    skinSrc = profile.skinUrl || null;
+    slim = profile.variant === 'slim';
+    capeBtn.hidden = !activeCape();
+    preview();
+    await loadAccounts();
+  };
+
+  const draw = () => {
+    const libHtml = `<section>
+      <div class="section-head"><h2>Библиотека скинов</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${profile.skinUrl ? `<button class="btn sm" data-save-current>${icon('plus')}Сохранить текущий</button>` : ''}
+          <button class="btn sm" data-lib-add>${icon('folder')}Добавить файл…</button></div></div>
+      ${
+        library.length
+          ? `<div class="skin-grid">${library
+              .map(
+                (it) => `<div class="skin-card ${selected === it.id ? 'on' : ''}" data-lib="${esc(it.id)}" tabindex="0" role="button" aria-label="Выбрать скин ${esc(it.name)}">
+                  <div class="head" style="${headStyle(it.dataUrl)}"></div><b>${esc(it.name)}</b><span class="sub">${it.variant === 'slim' ? 'Тонкая' : 'Обычная'} модель</span>
+                  <button class="x" data-lib-del="${esc(it.id)}" aria-label="Удалить из библиотеки" title="Удалить из библиотеки">${icon('x')}</button></div>`
+              )
+              .join('')}</div>`
+          : `<div class="faint">Здесь будут ваши скины. Добавьте PNG 64×64 или сохраните текущий скин: переключаться можно одним нажатием.</div>`
+      }
+      ${
+        selected
+          ? `<div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">
+              ${isMsa ? `<button class="btn primary" data-lib-apply>${icon('upload')}Применить к аккаунту</button>` : `<span class="faint">Для этого аккаунта скин только в предпросмотре: ${profile.type === 'ely' ? 'загрузите его на Ely.by' : 'у офлайн-аккаунта нет скина'}.</span>`}
+              <div class="segmented" data-lib-model><button data-m="classic" class="${library.find((x) => x.id === selected).variant === 'slim' ? '' : 'active'}">Обычная</button><button data-m="slim" class="${library.find((x) => x.id === selected).variant === 'slim' ? 'active' : ''}">Тонкая</button></div>
+            </div>`
+          : ''
+      }
+    </section>`;
+
+    const capesHtml = isMsa
+      ? `<section><div class="section-head"><h2>Плащи</h2></div>
+          ${
+            (profile.capes || []).length
+              ? `<div class="skin-grid">
+                  <div class="skin-card cape-card ${activeCape() ? '' : 'on'}" data-cape="" tabindex="0" role="button"><div class="head" style="background-color:var(--surface-3);width:44px;height:70px"></div><b>Без плаща</b></div>
+                  ${profile.capes
+                    .map(
+                      (c) => `<div class="skin-card cape-card ${c.active ? 'on' : ''}" data-cape="${esc(c.id)}" tabindex="0" role="button" aria-label="Надеть плащ ${esc(c.alias)}"><div class="head" style="${capeStyle(c.url)}"></div><b>${esc(c.alias)}</b>${c.active ? '<span class="sub">Надет</span>' : ''}</div>`
+                    )
+                    .join('')}</div>`
+              : `<div class="faint">У аккаунта пока нет плащей. Они выдаются Mojang за события и награды, например за участие в Minecon или за покупку игры в определённые периоды.</div>`
+          }
+        </section>`
+      : '';
+
+    let accountHtml = '';
+    if (isMsa) {
+      accountHtml = `<section><div class="settings-group">
         <div class="setting stack"><div class="txt"><b>Загрузить новый скин</b><span>PNG 64×64 пикселя. Скин сразу применится к вашему аккаунту Microsoft.</span></div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <button class="btn" data-pick>${icon('folder')}Выбрать файл…</button>
@@ -112,69 +146,158 @@ export async function renderSkin(view) {
         </div>
         <div class="setting"><div class="txt"><b>Сбросить скин</b><span>Вернёт стандартный скин Стива или Алекс.</span></div>
           <div class="ctl"><button class="btn danger" data-reset>Сбросить</button></div></div>
-      </div>`;
-      $('[data-pick]', panel).addEventListener('click', async () => {
+      </div></section>`;
+    } else if (profile.type === 'ely') {
+      accountHtml = `<section><div class="settings-group">
+        <div class="setting"><div class="txt"><b>Скин на Ely.by</b><span>Для пиратских аккаунтов скин хранится на Ely.by. Загрузите или смените его на сайте, затем нажмите «Обновить превью».</span></div></div>
+        <div class="setting"><div class="txt"><b>Изменить скин</b><span>Откроется сайт Ely.by в браузере.</span></div>
+          <div class="ctl"><button class="btn primary" data-ely>${icon('external')}Открыть Ely.by</button><button class="btn" data-refresh>${icon('refresh')}Обновить превью</button></div></div>
+      </div></section>`;
+    } else {
+      accountHtml = `<section><div class="settings-group">
+        <div class="setting"><div class="txt"><b>У офлайн-аккаунта нет скина</b><span>Он создан без входа на сервер авторизации, поэтому скин ему негде хранить. Подключите аккаунт Ely.by: скин будет виден в игре, а менять его можно на сайте.</span></div></div>
+        <div class="setting"><div class="txt"><b>Подключить Ely.by</b><span>Бесплатная регистрация на ely.by.</span></div>
+          <div class="ctl"><button class="btn primary" data-connect>${icon('key')}Войти через Ely.by</button></div></div>
+      </div></section>`;
+    }
+
+    panel.innerHTML = libHtml + capesHtml + accountHtml;
+    wire();
+  };
+
+  const guard = async (fn, okMsg, errTitle) => {
+    try {
+      await fn();
+      if (okMsg) toast(okMsg[0], okMsg[1] || '', 'success');
+    } catch (err) {
+      toast(errTitle, err.message, 'error');
+    }
+    draw();
+  };
+
+  function wire() {
+    $$('[data-lib]', panel).forEach((el) => {
+      const pick = () => {
+        selected = selected === el.dataset.lib ? null : el.dataset.lib;
+        const it = library.find((x) => x.id === selected);
+        if (it) {
+          skinSrc = it.dataUrl;
+          slim = it.variant === 'slim';
+        } else {
+          skinSrc = profile.skinUrl || null;
+          slim = profile.variant === 'slim';
+        }
+        preview();
+        draw();
+      };
+      el.addEventListener('click', pick);
+      el.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), pick()));
+    });
+    $$('[data-lib-del]', panel).forEach((b) =>
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        guard(async () => {
+          library = await window.api.skinlib.remove(b.dataset.libDel);
+          if (selected === b.dataset.libDel) {
+            selected = null;
+            skinSrc = profile.skinUrl || null;
+            slim = profile.variant === 'slim';
+            preview();
+          }
+        }, ['Удалено из библиотеки'], 'Не удалось удалить');
+      })
+    );
+    const add = $('[data-lib-add]', panel);
+    if (add)
+      add.addEventListener('click', () =>
+        guard(async () => {
+          const f = await window.api.skins.pick();
+          if (!f) return;
+          library = await window.api.skinlib.addFile(f.path, '', 'classic');
+        }, null, 'Не удалось добавить скин')
+      );
+    const cur = $('[data-save-current]', panel);
+    if (cur)
+      cur.addEventListener('click', () =>
+        guard(async () => {
+          library = await window.api.skinlib.addUrl(profile.skinUrl, acc.name, profile.variant === 'slim' ? 'slim' : 'classic');
+        }, ['Скин сохранён в библиотеку'], 'Не удалось сохранить скин')
+      );
+    $$('[data-lib-model] [data-m]', panel).forEach((b) =>
+      b.addEventListener('click', () =>
+        guard(async () => {
+          library = await window.api.skinlib.variant(selected, b.dataset.m);
+          slim = b.dataset.m === 'slim';
+          preview();
+        }, null, 'Не удалось изменить модель')
+      )
+    );
+    const apply = $('[data-lib-apply]', panel);
+    if (apply)
+      apply.addEventListener('click', (e) => {
+        e.currentTarget.disabled = true;
+        guard(async () => {
+          await window.api.skinlib.apply(acc.id, selected);
+          selected = null;
+          await refreshProfile();
+        }, ['Скин применён', 'Он появится в игре при следующем входе.'], 'Не удалось сменить скин');
+      });
+    $$('[data-cape]', panel).forEach((el) => {
+      const go = () =>
+        guard(async () => {
+          profile = await window.api.skins.setCape(acc.id, el.dataset.cape || null);
+          capeBtn.hidden = !activeCape();
+          preview();
+        }, [el.dataset.cape ? 'Плащ надет' : 'Плащ снят'], 'Не удалось сменить плащ');
+      el.addEventListener('click', go);
+      el.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), go()));
+    });
+    const pickBtn = $('[data-pick]', panel);
+    if (pickBtn) {
+      pickBtn.addEventListener('click', async () => {
         const f = await window.api.skins.pick();
         if (!f) return;
         picked = f;
-        await paint(f.dataUrl);
+        selected = null;
+        skinSrc = f.dataUrl;
+        preview();
         draw();
       });
-      $$('[data-m]', panel).forEach((b) =>
+      $$('[data-model] [data-m]', panel).forEach((b) =>
         b.addEventListener('click', () => {
           slim = b.dataset.m === 'slim';
-          if (image) drawSkin(canvas, image, slim);
+          preview();
           draw();
         })
       );
-      $('[data-apply]', panel).addEventListener('click', async (e) => {
+      $('[data-apply]', panel).addEventListener('click', (e) => {
         e.currentTarget.disabled = true;
-        try {
+        guard(async () => {
           profile = await window.api.skins.set(acc.id, picked.path, slim ? 'slim' : 'classic');
           picked = null;
-          await loadAccounts();
-          toast('Скин обновлён', 'Он появится в игре при следующем входе.', 'success');
-          draw();
-        } catch (err) {
-          toast('Не удалось сменить скин', err.message, 'error');
-          draw();
-        }
+          await refreshProfile();
+        }, ['Скин обновлён', 'Он появится в игре при следующем входе.'], 'Не удалось сменить скин');
       });
-      $('[data-reset]', panel).addEventListener('click', async () => {
-        try {
+      $('[data-reset]', panel).addEventListener('click', () =>
+        guard(async () => {
           profile = await window.api.skins.reset(acc.id);
           picked = null;
-          if (profile.skinUrl) await paint(profile.skinUrl);
-          else if (image) canvas.getContext('2d').clearRect(0, 0, 16, 32);
-          toast('Скин сброшен', '', 'success');
-        } catch (err) {
-          toast('Не удалось сбросить', err.message, 'error');
-        }
-      });
-    };
-    draw();
-    return;
+          await refreshProfile();
+        }, ['Скин сброшен'], 'Не удалось сбросить')
+      );
+    }
+    const ely = $('[data-ely]', panel);
+    if (ely) {
+      ely.addEventListener('click', () => window.api.app.openExternal('https://ely.by/skins'));
+      $('[data-refresh]', panel).addEventListener('click', () =>
+        guard(async () => {
+          await refreshProfile();
+        }, ['Превью обновлено'], 'Не удалось обновить')
+      );
+    }
+    const connect = $('[data-connect]', panel);
+    if (connect) connect.addEventListener('click', openAccounts);
   }
 
-  if (profile.type === 'ely') {
-    panel.innerHTML = `<div class="settings-group">
-      <div class="setting"><div class="txt"><b>Скин на Ely.by</b><span>Для пиратских аккаунтов скин хранится на Ely.by. Загрузите или смените его на сайте, затем нажмите «Обновить превью» — в игре он появится при следующем запуске.</span></div></div>
-      <div class="setting"><div class="txt"><b>Изменить скин</b><span>Откроется сайт Ely.by в браузере.</span></div>
-        <div class="ctl"><button class="btn primary" data-ely>${icon('external')}Открыть Ely.by</button><button class="btn" data-refresh>${icon('refresh')}Обновить превью</button></div></div>
-    </div>`;
-    $('[data-ely]', panel).addEventListener('click', () => window.api.app.openExternal('https://ely.by/skins'));
-    $('[data-refresh]', panel).addEventListener('click', async () => {
-      const p = await window.api.skins.profile(acc.id);
-      await paint(p.skinUrl);
-      toast('Превью обновлено', '', 'success');
-    });
-    return;
-  }
-
-  panel.innerHTML = `<div class="settings-group">
-    <div class="setting"><div class="txt"><b>У офлайн-аккаунта нет скина</b><span>Он создан без входа на сервер авторизации, поэтому скин ему негде хранить. Подключите аккаунт Ely.by — скин будет виден в игре, а менять его можно на сайте Ely.by.</span></div></div>
-    <div class="setting"><div class="txt"><b>Подключить Ely.by</b><span>Бесплатная регистрация на ely.by.</span></div>
-      <div class="ctl"><button class="btn primary" data-connect>${icon('key')}Войти через Ely.by</button></div></div>
-  </div>`;
-  $('[data-connect]', panel).addEventListener('click', openAccounts);
+  draw();
 }

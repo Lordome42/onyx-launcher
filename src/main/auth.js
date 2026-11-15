@@ -316,7 +316,8 @@ async function skinProfile(id) {
     const skin = (profile.skins || []).find((s) => s.state === 'ACTIVE') || (profile.skins || [])[0];
     account.skinUrl = skin ? skin.url : null;
     store.saveAccounts(data);
-    return { type: 'msa', name: account.name, skinUrl: account.skinUrl, variant: skin ? (skin.variant || 'CLASSIC').toLowerCase() : 'classic' };
+    const capes = (profile.capes || []).map((c) => ({ id: c.id, url: c.url, alias: c.alias || 'Плащ', active: c.state === 'ACTIVE' }));
+    return { type: 'msa', name: account.name, skinUrl: account.skinUrl, variant: skin ? (skin.variant || 'CLASSIC').toLowerCase() : 'classic', capes };
   }
   if (account.type === 'ely') {
     return { type: 'ely', name: account.name, skinUrl: `${account.skinUrl}?t=${Date.now()}`, variant: 'classic' };
@@ -339,6 +340,19 @@ async function setSkin(id, file, variant) {
     body: form,
   });
   if (!res.ok) throw new Error(res.status === 400 ? 'Mojang отклонил этот скин' : `Mojang вернул ошибку ${res.status}`);
+  return skinProfile(id);
+}
+
+// Включает плащ по идентификатору или прячет его (capeId = null).
+async function setCape(id, capeId) {
+  const { data, account } = findAccount(id);
+  if (account.type !== 'msa') throw new Error('Плащи доступны только для аккаунтов Microsoft');
+  await freshMs(account, data);
+  const headers = { Authorization: `Bearer ${account.accessToken}`, 'User-Agent': 'OnyxLauncher/0.3.6' };
+  const res = capeId
+    ? await fetch('https://api.minecraftservices.com/minecraft/profile/capes/active', { method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ capeId }) })
+    : await fetch('https://api.minecraftservices.com/minecraft/profile/capes/active', { method: 'DELETE', headers });
+  if (!res.ok) throw new Error(`Mojang вернул ошибку ${res.status}`);
   return skinProfile(id);
 }
 
@@ -374,4 +388,4 @@ function removeAccount(id) {
   return listAccounts();
 }
 
-module.exports = { loginEly, skinProfile, setSkin, resetSkin, loginMicrosoft, addOffline, getLaunchAccount, listAccounts, selectAccount, removeAccount, offlineUuid };
+module.exports = { loginEly, skinProfile, setSkin, setCape, resetSkin, loginMicrosoft, addOffline, getLaunchAccount, listAccounts, selectAccount, removeAccount, offlineUuid };

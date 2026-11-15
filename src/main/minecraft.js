@@ -440,7 +440,18 @@ async function launch({ instance, account, settings, repair = false, quickPlay =
   const vanilla = await ensureVanillaJson(instance.version);
 
   // Java
-  let java = (instance.javaPath || settings.javaPath || '').trim();
+  let java = (instance.javaPath || '').trim();
+  if (!java) {
+    // профиль Java: сборки, иначе общий; «авто» берёт нужную Mojang-среду
+    const profiles = require('./javaprofiles');
+    const prof = profiles.resolve(instance.javaProfile && instance.javaProfile !== 'default' ? instance.javaProfile : settings.javaProfile);
+    if (prof && prof.path) java = prof.path;
+    else if (prof && prof.component) {
+      progress('Загрузка Java', 0, 0);
+      java = await ensureJava(prof.component, (d, t) => progress(`Загрузка Java (${prof.component})`, d, t));
+    }
+  }
+  if (!java) java = (settings.javaPath || '').trim();
   if (!java) {
     const component = (vanilla.javaVersion && vanilla.javaVersion.component) || 'jre-legacy';
     progress('Загрузка Java', 0, 0);
@@ -604,6 +615,7 @@ module.exports = {
   listLoaderVersions,
   loaderGameVersions,
   launch,
+  ensureJava,
   stop,
   runningIds,
   // для тестов

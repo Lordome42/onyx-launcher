@@ -14,6 +14,10 @@ const gamefiles = require('./gamefiles');
 const updater = require('./updater');
 const datadir = require('./datadir');
 const maintenance = require('./maintenance');
+const javaProfiles = require('./javaprofiles');
+const skinlib = require('./skinlib');
+const rpc = require('./rpc');
+app.on('will-quit', () => rpc.shutdown());
 
 // Лёгкий запуск: меньше памяти у интерфейса, без лишних фоновых служб Chromium.
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=160');
@@ -93,7 +97,11 @@ handle('app:openExternal', (url) => {
 
 // Настройки
 handle('settings:get', () => store.getSettings());
-handle('settings:set', (patch) => store.setSettings(patch));
+handle('settings:set', (patch) => {
+  const res = store.setSettings(patch);
+  if ('discordRpc' in patch || 'discordClientId' in patch) rpc.refresh();
+  return res;
+});
 handle('storage:info', () => maintenance.storageInfo());
 handle('storage:cleanExtra', () => maintenance.cleanExtra());
 handle('storage:clearCache', () => maintenance.clearCache());
@@ -158,7 +166,9 @@ handle('instances:launch', async (id, opts = {}) => {
       lastProgress.set(id, Date.now());
     }
     send(`game:${type}`, payload);
+    if (type === 'started') rpc.playing(instance);
     if (type === 'exit') {
+      rpc.idle();
       instances.recordPlay(payload.id, payload.playedMs);
       if (settings.closeOnLaunch && win && !win.isDestroyed()) win.show();
     }
@@ -243,6 +253,30 @@ handle('skins:pick', async () => {
 });
 handle('skins:set', (id, file, variant) => auth.setSkin(id, file, variant));
 handle('skins:reset', (id) => auth.resetSkin(id));
+handle('skins:setCape', (id, capeId) => auth.setCape(id, capeId));
+handle('skinlib:list', () => skinlib.list());
+handle('skinlib:addFile', (file, name, variant) => skinlib.addFile(file, name, variant));
+handle('skinlib:addUrl', (url, name, variant) => skinlib.addUrl(url, name, variant));
+handle('skinlib:remove', (id) => skinlib.remove(id));
+handle('skinlib:rename', (id, name) => skinlib.rename(id, name));
+handle('skinlib:variant', (id, variant) => skinlib.update(id, { variant }));
+handle('skinlib:apply', (accId, id) => {
+  const f = skinlib.filePath(id);
+  return auth.setSkin(accId, f.file, f.variant);
+});
+// Профили Java
+handle('java:list', () => javaProfiles.list());
+handle('java:required', (version) => javaProfiles.requiredMajor(version));
+handle('java:detect', () => javaProfiles.detect());
+handle('java:pick', () => javaProfiles.pick(win));
+handle('java:addCustom', (p) => javaProfiles.addCustom(p));
+handle('java:removeCustom', (id) => javaProfiles.removeCustom(id));
+handle('java:install', async (component) => {
+  const comp = javaProfiles.COMPONENTS.find((c) => c.id === component);
+  if (!comp) throw new Error('Неизвестная среда Java');
+  await minecraft.ensureJava(component, (done, total) => send('content:progress', { key: 'java', stage: `Загрузка ${comp.label}`, done, total }));
+  return javaProfiles.list();
+});
 handle('accounts:loginEly', (u, p, code) => auth.loginEly(u, p, code));
 
 // Modrinth
@@ -270,6 +304,7 @@ app.whenReady().then(() => {
   createWindow();
   updater.init(send);
   maintenance.backupDaily().catch(() => {});
+  rpc.idle();
   maintenance.pruneCache().catch(() => {});
   updater.checkOnStart();
   app.on('activate', () => {

@@ -36,6 +36,19 @@ function heroArt() {
       Array.from({ length: n }, (_, i) => `<circle cx="${x + (i % 2 ? 9 : -9)}" cy="${len - 8 - i * 20}" r="8" fill="var(--accent)"/><circle cx="${x + (i % 2 ? 7 : -11)}" cy="${len - 11 - i * 20}" r="2.5" fill="#fff" opacity=".7"/>`).join('');
     return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true">${vine(35, 120, 4)}${vine(80, 150, 5)}${vine(130, 100, 3)}${vine(175, 135, 4)}</svg>`;
   }
+  if (theme === 'end') {
+    // Портал Энда: фиолетовое кольцо и глаза эндера.
+    const eyes = [[62, 58], [148, 58], [105, 130], [60, 108], [150, 108]].map(([x, y]) => `<rect x="${x - 6}" y="${y - 3}" width="12" height="6" fill="var(--accent-2)"/><rect x="${x - 2}" y="${y - 3}" width="4" height="6" fill="#1a0d2e"/>`).join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true"><defs><radialGradient id="en"><stop offset="0" stop-color="var(--accent)" stop-opacity=".6"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></radialGradient></defs>
+      <circle cx="105" cy="80" r="78" fill="url(#en)"/><ellipse cx="105" cy="82" rx="84" ry="52" fill="none" stroke="#5c8a5a" stroke-width="10" opacity=".85"/><ellipse cx="105" cy="82" rx="64" ry="36" fill="#150a26" stroke="var(--accent)" stroke-width="3"/>${eyes}</svg>`;
+  }
+  if (theme === 'nightsky') {
+    // Полумесяц и звёзды.
+    const stars = [[30, 30, 2.4], [60, 120, 1.8], [175, 28, 2.2], [190, 112, 1.6], [150, 140, 2], [18, 82, 1.5], [125, 20, 1.7], [90, 142, 1.4]]
+      .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity=".85"/>`).join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true"><defs><radialGradient id="ns"><stop offset="0" stop-color="var(--accent)" stop-opacity=".4"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></radialGradient></defs>
+      <circle cx="105" cy="80" r="80" fill="url(#ns)"/>${stars}<path d="M128 34 A48 48 0 1 0 150 112 A38 38 0 1 1 128 34Z" fill="#e7eeff"/></svg>`;
+  }
   if (theme === 'cherry') {
     // Цветок вишни.
     const petals = [0, 72, 144, 216, 288].map((r) => `<path transform="rotate(${r} 105 80)" d="M105 80 C85 60 88 22 105 14 C122 22 125 60 105 80Z" fill="var(--accent)" opacity=".92"/><path transform="rotate(${r} 105 80)" d="M105 80 L105 40" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>`).join('');
