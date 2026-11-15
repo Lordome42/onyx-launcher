@@ -4,6 +4,19 @@ const fs = require('fs');
 const { fetchJson, downloadFile } = require('./net');
 const instances = require('./instances');
 const modrinth = require('./modrinth');
+const minecraft = require('./minecraft');
+
+// Минимальный Fabric Loader, с которым мод проверен (в fabric.mod.json: fabricloader >=0.19.0).
+const MIN_LOADER = '0.19.0';
+const cmp = (a, b) => {
+  const x = String(a).split(/[.+-]/).map((n) => parseInt(n, 10) || 0);
+  const y = String(b).split(/[.+-]/).map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    const d = (x[i] || 0) - (y[i] || 0);
+    if (d) return d;
+  }
+  return 0;
+};
 
 const REPO = 'Lordome42/onyx-visual';
 const FABRIC_API = 'P7dR8mSH'; // Fabric API на Modrinth
@@ -55,9 +68,19 @@ async function install(instanceId, onProgress = () => {}) {
   const info = await latest(true);
   if (!compatible(info, inst)) throw new Error(`Onyx Visual рассчитан на Minecraft ${info.minecraft}, а в сборке «${inst.name}» ${inst.version}.`);
 
+  const result = { installed: ['Onyx Visual'], fabricApi: false, loaderUpdated: null };
+  // Загрузчик в сборке не должен быть старее требуемого: иначе игра не запустится.
+  if (inst.loader === 'fabric' && inst.loaderVersion && cmp(inst.loaderVersion, MIN_LOADER) < 0) {
+    onProgress('Обновление Fabric Loader');
+    const list = await minecraft.listLoaderVersions('fabric', inst.version);
+    const best = list.find((l) => l.stable) || list[0];
+    if (!best || cmp(best.version, MIN_LOADER) < 0) throw new Error(`Для Onyx Visual нужен Fabric Loader ${MIN_LOADER}+, а для Minecraft ${inst.version} он недоступен.`);
+    instances.update(instanceId, { loaderVersion: best.version });
+    result.loaderUpdated = { from: inst.loaderVersion, to: best.version };
+  }
+
   // Fabric API нужен моду: ставим, если его ещё нет.
   const have = Object.values(instances.get(instanceId).content || {});
-  const result = { installed: ['Onyx Visual'], fabricApi: false };
   if (!have.some((c) => c.projectId === FABRIC_API || c.slug === 'fabric-api')) {
     onProgress('Установка Fabric API');
     await modrinth.install(instanceId, FABRIC_API, onProgress);

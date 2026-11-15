@@ -181,7 +181,7 @@ async function renderContent(body, inst, view) {
         });
         try {
           const res = await window.api.onyxvisual.install(inst.id);
-          toast('Onyx Visual установлен', `Версия ${res.version}${res.fabricApi ? ', Fabric API добавлен' : ''}. В игре меню открывается на Right Shift.`, 'success');
+          toast('Onyx Visual установлен', `Версия ${res.version}${res.fabricApi ? ', Fabric API добавлен' : ''}${res.loaderUpdated ? `, Fabric Loader обновлён ${res.loaderUpdated.from} → ${res.loaderUpdated.to}` : ''}. В игре меню открывается на Right Shift.`, 'success');
           ov = await window.api.onyxvisual.status(inst.id).catch(() => ov);
           await loadInstances();
         } catch (err) {
