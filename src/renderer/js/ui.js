@@ -160,6 +160,17 @@ export function confirmDialog({ title, text, action = 'Удалить', danger =
   });
 }
 
+// Необязательное подтверждение: при включённой настройке «только опасные предупреждения» пропускается.
+export async function confirmSoft(opts) {
+  try {
+    const { state } = await import('./state.js');
+    if (state.settings && state.settings.onlyDangerConfirms) return true;
+  } catch {
+    /* спрашиваем как обычно */
+  }
+  return confirmDialog(opts);
+}
+
 // Окно с прогрессом для долгих операций: слушает события content:progress с нужным ключом.
 export function progressModal(title, key) {
   let close = () => {};

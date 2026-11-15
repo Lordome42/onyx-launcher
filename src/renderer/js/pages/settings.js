@@ -12,8 +12,15 @@ async function save(patch) {
   }
 }
 
+const row = (title, text, ctl) => `<div class="setting"><div class="txt"><b>${title}</b><span>${text}</span></div><div class="ctl">${ctl}</div></div>`;
+
 export async function renderSettings(view) {
   const s = state.settings;
+  const toggle = (key, def) => `<button class="toggle ${(s[key] === undefined ? def : s[key]) ? 'on' : ''}" data-flag="${key}" aria-label="${key}"></button>`;
+  const range = (key, min, max, def, unit) => {
+    const v = Number.isFinite(Number(s[key])) && s[key] !== undefined ? Number(s[key]) : def;
+    return `<div class="range-row"><input type="range" data-range="${key}" data-unit="${unit}" min="${min}" max="${max}" step="1" value="${v}" aria-label="${key}" /><b data-range-val="${key}">${v}${unit}</b></div>`;
+  };
   let info = { version: '0.1.0', dataDir: '' };
   try {
     info = await window.api.app.info();
@@ -23,10 +30,13 @@ export async function renderSettings(view) {
 
   const sections = [
     ['appearance', 'Оформление', 'palette'],
+    ['features', 'Возможности', 'sparkles'],
+    ['confirm', 'Подтверждения', 'shield'],
     ['java', 'Java и память', 'cpu'],
     ['game', 'Игра', 'gamepad'],
     ['cf', 'CurseForge', 'download'],
-    ['accounts', 'Вход Microsoft', 'shield'],
+    ['accounts', 'Вход Microsoft', 'key'],
+    ['storage', 'Хранилище', 'box'],
     ['about', 'О лаунчере', 'info'],
   ];
 
@@ -45,6 +55,34 @@ export async function renderSettings(view) {
               (t) => `<button class="theme-card ${s.theme === t.id ? 'active' : ''}" data-theme-id="${t.id}">
                 ${themePreview(t)}<div class="name">${esc(t.name)}${s.theme === t.id ? icon('check') : ''}</div></button>`
             ).join('')}</div>
+          </div>
+        </section>
+
+
+        <section id="sec-features" style="margin-top:12px">
+          <h2 style="margin-bottom:12px">Возможности</h2>
+          <div class="settings-group">
+            <div class="setting stack" style="padding-bottom:0"><div class="txt"><b>Сборки</b><span>Какие вкладки показывать на странице сборки.</span></div></div>
+            ${row('Вкладка «Контент»', 'Моды, ресурспаки и шейдеры сборки.', toggle('showTabContent', true))}
+            ${row('Вкладка «Миры»', 'Список миров с быстрым запуском.', toggle('showTabWorlds', true))}
+            ${row('Вкладка «Скриншоты»', 'Снимки экрана из игры.', toggle('showTabShots', true))}
+            <div class="setting stack" style="padding-bottom:0"><div class="txt"><b>Боковая панель</b><span>Что показывать в узкой панели слева.</span></div></div>
+            ${row('Кнопка всех скриншотов', 'Одна страница со снимками из всех сборок.', toggle('railShots', true))}
+            ${row('Кнопка выбора скина', 'Быстрый переход к смене скина.', toggle('railSkin', true))}
+            ${row('Количество сборок на панели', 'Закреплённые сборки идут первыми. 0 скрывает список.', range('railCount', 0, 20, 6, ''))}
+            <div class="setting stack" style="padding-bottom:0"><div class="txt"><b>Главная и контент</b><span>Внешний вид главной страницы и библиотеки.</span></div></div>
+            ${row('Недавние сборки и миры', 'Блок «Последние сервера и сборки» на главной.', toggle('showRecent', true))}
+            ${row('Компактный список в библиотеке', 'Сборки отображаются строками вместо карточек.', toggle('compactLibrary', false))}
+            ${row('Время игры в сборках', 'Показывать, сколько вы наиграли, на карточке сборки.', toggle('showPlayTime', true))}
+            ${row('Скрывать имя на странице скина', 'Убирает ник над скином, например для скриншотов.', toggle('hideSkinName', false))}
+          </div>
+        </section>
+
+        <section id="sec-confirm" style="margin-top:12px">
+          <h2 style="margin-bottom:12px">Подтверждения</h2>
+          <div class="settings-group">
+            ${row('Предупреждать о сторонних сборках', 'Показывать предупреждение при импорте .mrpack не из каталога Modrinth.', toggle('warnForeignPacks', true))}
+            ${row('Только опасные предупреждения', 'Скрывает мелкие подтверждения: удаление обычного контента, дубликаты, массовые обновления. Удаление сборок и миров всё равно спросит.', toggle('onlyDangerConfirms', false))}
           </div>
         </section>
 
@@ -121,16 +159,46 @@ export async function renderSettings(view) {
           </div>
         </section>
 
+
+        <section id="sec-storage" style="margin-top:12px">
+          <h2 style="margin-bottom:12px">Хранилище и загрузки</h2>
+          <div class="settings-group">
+            <div class="setting stack">
+              <div class="txt"><b>Использование места</b><span data-st-total>Считаю…</span></div>
+              <div class="storage-bar" data-st-bar></div>
+              <div class="storage-legend" data-st-legend></div>
+            </div>
+            <div class="setting">
+              <div class="txt"><b>Удалить лишнее</b><span>Загруженные установщики и временные файлы. Сборки, миры и игра не затрагиваются.</span></div>
+              <div class="ctl"><button class="btn" data-st-clean>${icon('trash')}Удалить лишнее</button></div>
+            </div>
+            ${row('Лимит кеша лишних файлов', 'Самые старые временные файлы удаляются, когда объём превышает лимит.', range('cacheLimitGB', 1, 50, 5, ' ГиБ'))}
+            <div class="setting">
+              <div class="txt"><b>Каталог приложения</b><span data-dd-info>${esc(info.dataDir || '')}</span></div>
+              <div class="ctl"><button class="btn" data-dd-copy>${icon('link')}Копировать</button><button class="btn" data-datadir>${icon('folder')}Открыть</button><button class="btn" data-dd-change>${icon('folder')}Изменить…</button></div>
+            </div>
+            ${row('Одновременных скачиваний', 'Больше значит быстрее на хорошем канале, но выше нагрузка. Применяется к следующей загрузке.', range('downloadLimit', 1, 10, 10, ''))}
+            ${row('Одновременных записей на диск', 'Уменьшите на медленных HDD. Применяется к следующей загрузке.', range('writeLimit', 1, 50, 10, ''))}
+            <div class="setting">
+              <div class="txt"><b>Очистить кеш</b><span>Удаляет весь кеш лаунчера: значки, списки версий, установщики. Он создастся заново.</span></div>
+              <div class="ctl"><button class="btn" data-st-clear>${icon('trash')}Очистить кеш</button></div>
+            </div>
+            <div class="setting">
+              <div class="txt"><b>Резервные копии</b><span>Раз в день лаунчер копирует настройки, аккаунты и параметры сборок (последние 7 копий). Сами миры не копируются.</span></div>
+              <div class="ctl"><button class="btn" data-bk-now>${icon('refresh')}Создать копию</button><button class="btn" data-bk-open>${icon('folder')}Открыть папку</button></div>
+            </div>
+            <div class="setting">
+              <div class="txt"><b>Экспорт отладочной информации</b><span>ZIP с версиями, настройками (без ключей и токенов), списком сборок и последними журналами. Приложите его к сообщению об ошибке.</span></div>
+              <div class="ctl"><button class="btn" data-dbg>${icon('download')}Экспортировать</button></div>
+            </div>
+          </div>
+        </section>
+
         <section id="sec-about" style="margin-top:12px">
           <h2 style="margin-bottom:12px">О лаунчере</h2>
           <div class="settings-group">
             <div class="setting">
               <div class="txt"><b>Оникс ${esc(info.version)}</b><span>Версии игры, библиотеки, Java и сборки хранятся в папке данных.</span></div>
-              <div class="ctl"><button class="btn" data-datadir>${icon('folder')}Открыть папку</button></div>
-            </div>
-            <div class="setting">
-              <div class="txt"><b>Папка данных</b><span data-dd-info>${esc(info.dataDir || '')}</span></div>
-              <div class="ctl"><button class="btn" data-dd-change>${icon('folder')}Изменить…</button></div>
             </div>
             <div class="setting">
               <div class="txt"><b>Обновления лаунчера</b><span data-upd-status>Новые версии берутся из релизов на GitHub, проверяются при запуске и скачиваются только с вашего согласия.</span></div>
@@ -194,11 +262,83 @@ export async function renderSettings(view) {
       save({ [key]: on });
     })
   );
+  $$('[data-range]', view).forEach((r) => {
+    const key = r.dataset.range;
+    const paint = () => {
+      r.style.setProperty('--fill', ((r.value - r.min) / (r.max - r.min)) * 100 + '%');
+      $(`[data-range-val="${key}"]`, view).textContent = r.value + r.dataset.unit;
+    };
+    paint();
+    r.addEventListener('input', paint);
+    r.addEventListener('change', async () => {
+      await save({ [key]: Number(r.value) });
+      if (key === 'cacheLimitGB') window.api.storage.prune().then(loadStorage).catch(() => {});
+    });
+  });
+
+  const gb = (n) => (n / 1024 ** 3 >= 0.1 ? (n / 1024 ** 3).toFixed(1).replace('.0', '') + ' ГиБ' : Math.round(n / 1024 ** 2) + ' МиБ');
+  async function loadStorage() {
+    try {
+      const d = await window.api.storage.info();
+      const total = Math.max(1, d.own + d.shared + d.extra);
+      const parts = [['Свой контент', d.own, 'var(--accent)'], ['Общие файлы игры', d.shared, 'var(--accent-2, #888)'], ['Лишнее', d.extra, 'var(--warning, #d9a441)']];
+      $('[data-st-total]', view).textContent = `Всего занято ${gb(d.own + d.shared + d.extra)} в ${d.dir}`;
+      $('[data-st-bar]', view).innerHTML = parts.map(([, n, c]) => `<i style="width:${(n / total) * 100}%;background:${c}"></i>`).join('');
+      $('[data-st-legend]', view).innerHTML = parts.map(([n, v, c]) => `<span style="--c:${c}">${n}: ${gb(v)}</span>`).join('');
+    } catch {
+      const el = $('[data-st-total]', view);
+      if (el) el.textContent = 'Не удалось посчитать занятое место.';
+    }
+  }
+  loadStorage();
+  $('[data-st-clean]', view).addEventListener('click', async () => {
+    try {
+      const r = await window.api.storage.cleanExtra();
+      toast('Лишнее удалено', `Освобождено ${gb(r.freed)}.`, 'success');
+    } catch (err) {
+      toast('Не удалось удалить', err.message, 'error');
+    }
+    loadStorage();
+  });
+  $('[data-st-clear]', view).addEventListener('click', async () => {
+    try {
+      const r = await window.api.storage.clearCache();
+      toast('Кеш очищен', `Освобождено ${gb(r.freed)}.`, 'success');
+    } catch (err) {
+      toast('Не удалось очистить кеш', err.message, 'error');
+    }
+    loadStorage();
+  });
+  $('[data-bk-now]', view).addEventListener('click', async () => {
+    try {
+      const r = await window.api.storage.backupNow();
+      toast('Копия создана', r.dir, 'success');
+    } catch (err) {
+      toast('Не удалось создать копию', err.message, 'error');
+    }
+  });
+  $('[data-bk-open]', view).addEventListener('click', () => window.api.storage.openBackups().catch((e) => toast('Не удалось открыть папку', e.message, 'error')));
+  $('[data-dbg]', view).addEventListener('click', async () => {
+    try {
+      const r = await window.api.storage.exportDebug();
+      if (r) toast('Отладочная информация сохранена', r.path, 'success');
+    } catch (err) {
+      toast('Не удалось экспортировать', err.message, 'error');
+    }
+  });
+  $('[data-dd-copy]', view).addEventListener('click', async () => {
+    try {
+      const d = await window.api.datadir.info();
+      await navigator.clipboard.writeText(d.dir);
+      toast('Путь скопирован', d.dir, 'success');
+    } catch {
+      toast('Не удалось скопировать путь', '', 'error');
+    }
+  });
   window.api.datadir.info().then((d) => {
     const el = $('[data-dd-info]', view);
     if (!el) return;
-    const gb = (n) => (n / 1024 ** 3).toFixed(1).replace('.0', '');
-    el.textContent = `${d.dir} · занято ${gb(d.size)} ГБ${d.free != null ? `, свободно на диске ${gb(d.free)} ГБ` : ''}. Если на диске C: не хватает места, перенесите данные на другой диск.`;
+    el.textContent = `${d.dir}${d.free != null ? ` · свободно на диске ${gb(d.free)}` : ''}. Если на диске C: не хватает места, перенесите данные на другой диск.`;
   }).catch(() => {});
   $('[data-dd-change]', view).addEventListener('click', async () => {
     const dir = await window.api.datadir.choose();

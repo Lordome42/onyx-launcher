@@ -23,6 +23,8 @@ contextBridge.exposeInMainWorld('api', {
     close: call('window:close'),
     onState: on('window:state'),
   },
+  storage: { info: call('storage:info'), cleanExtra: call('storage:cleanExtra'), clearCache: call('storage:clearCache'), prune: call('storage:prune'), backupNow: call('backup:now'), openBackups: call('backup:open'), exportDebug: call('debug:export') },
+  storage: { info: call('storage:info'), cleanExtra: call('storage:cleanExtra'), clearCache: call('storage:clearCache'), prune: call('storage:prune'), backupNow: call('backup:now'), openBackups: call('backup:open'), exportDebug: call('debug:export') },
   datadir: { info: call('datadir:info'), choose: call('datadir:choose'), move: call('datadir:move') },
   update: { state: call('update:state'), check: call('update:check'), download: call('update:download'), install: call('update:install') },
   app: { info: call('app:info'), openExternal: call('app:openExternal') },

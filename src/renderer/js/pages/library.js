@@ -1,6 +1,6 @@
 import { state, loadInstances } from '../state.js';
 import { icon } from '../icons.js';
-import { esc, instIcon, coverStyle, timeAgo, LOADERS, $, $$, toast, progressModal } from '../ui.js';
+import { esc, instIcon, coverStyle, timeAgo, formatDuration, confirmDialog, LOADERS, $, $$, toast, progressModal } from '../ui.js';
 import { navigate } from '../router.js';
 import { openCreateInstance } from '../modals.js';
 
@@ -15,12 +15,21 @@ export function instanceCard(i) {
     <div>
       <div class="name">${esc(i.name)}</div>
       <div class="meta"><i style="width:8px;height:8px;border-radius:2px;background:${loader.color}"></i>${loader.label} ${esc(i.version)}
-        <span>·</span>${state.running.has(i.id) ? '<span style="color:var(--success)">в игре</span>' : esc(timeAgo(i.lastPlayed))}</div>
+        <span>·</span>${state.running.has(i.id) ? '<span style="color:var(--success)">в игре</span>' : esc(timeAgo(i.lastPlayed))}${state.settings.showPlayTime !== false && i.playTime ? `<span>·</span><span title="Время в игре">${icon('clock')}${formatDuration(i.playTime)}</span>` : ''}</div>
     </div>
   </div>`;
 }
 
 export async function importPack() {
+  if (state.settings.warnForeignPacks !== false) {
+    const ok = await confirmDialog({
+      title: 'Импортировать сборку из файла?',
+      text: 'Файл .mrpack не из каталога Modrinth может содержать неизвестные файлы и мод-пакеты. Импортируйте только архивы, которым доверяете.',
+      action: 'Выбрать файл',
+      danger: false,
+    });
+    if (!ok) return;
+  }
   const stop = progressModal('Импорт сборки', 'import');
   try {
     const res = await window.api.packs.import();
@@ -103,7 +112,7 @@ export function renderLibrary(view) {
         <option value="version" ${filter.sort === 'version' ? 'selected' : ''}>По версии</option>
       </select>
     </div>
-    <div class="grid" data-grid></div>
+    <div class="${state.settings.compactLibrary ? 'list-compact' : 'grid'}" data-grid></div>
   </div>`;
   $('[data-new]', view).addEventListener('click', openCreateInstance);
   $('[data-import]', view).addEventListener('click', importPack);

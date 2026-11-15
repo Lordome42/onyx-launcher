@@ -2262,3 +2262,27 @@ img.project-icon { align-self: start; display: block; flex: none; aspect-ratio: 
 .mq-card small { color: var(--text-3); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body.low-power .mq-track, body.game-running .mq-track { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .mq-track { animation: none; } .marquee { overflow-x: auto; } }
+
+.quote.compact { margin: 14px 0 0; max-width: 560px; padding-left: 12px; border-left: 2px solid var(--accent); }
+.quote.compact p { font-size: 14px; margin-bottom: 3px; }
+.quote.compact cite { font-size: 11.5px; }
+
+/* Компактный список сборок */
+.list-compact { display: grid; gap: 6px; }
+.list-compact .instance-card { display: flex; align-items: center; gap: 14px; padding: 8px 12px; }
+.list-compact .instance-card .cover { width: 44px; height: 44px; flex: none; border-radius: 10px; aspect-ratio: auto; }
+.list-compact .instance-card .cover .project-icon, .list-compact .instance-card .cover img { width: 32px; height: 32px; }
+.list-compact .instance-card .cover [data-live-play] { display: none; }
+.list-compact .instance-card .cover .pin-btn { display: none; }
+.list-compact .instance-card .name { font-size: 14px; }
+.list-compact .new-card { justify-content: flex-start; min-height: 0; height: 52px; }
+.list-compact .new-card .plus { width: 28px; height: 28px; }
+.meta .icon { width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; }
+/* Хранилище */
+.storage-bar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--surface-2); margin: 10px 0 8px; }
+.storage-bar i { display: block; height: 100%; }
+.storage-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; color: var(--text-2); }
+.storage-legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 6px; background: var(--c); }
+.range-row { display: flex; align-items: center; gap: 12px; }
+.range-row input[type=range] { width: 180px; }
+.range-row b { min-width: 34px; text-align: right; }

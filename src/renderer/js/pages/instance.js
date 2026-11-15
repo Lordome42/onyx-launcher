@@ -1,6 +1,6 @@
 import { state, loadInstances, loadVersions, subscribe } from '../state.js';
 import { icon } from '../icons.js';
-import { esc, instIcon, cube, coverStyle, LOADERS, $, $$, toast, confirmDialog, formatDuration, timeAgo, formatSize, progressModal } from '../ui.js';
+import { esc, instIcon, cube, coverStyle, LOADERS, $, $$, toast, confirmDialog, confirmSoft, formatDuration, timeAgo, formatSize, progressModal } from '../ui.js';
 import { navigate } from '../router.js';
 import { updateLive, togglePlay } from '../actions.js';
 import { openModal } from '../ui.js';
@@ -12,6 +12,7 @@ export async function renderInstance(view, route) {
   const id = route.parts[0];
   const tab = route.parts[1] || 'content';
   const inst = state.instances.find((i) => i.id === id);
+  const st = state.settings || {};
   if (!inst) {
     view.innerHTML = `<div class="view-inner"><div class="empty"><div class="icon-wrap">${icon('box')}</div><h3>Сборка не найдена</h3><p>Возможно, её удалили.</p><button class="btn" data-back>К библиотеке</button></div></div>`;
     $('[data-back]', view).addEventListener('click', () => navigate('/library'));
@@ -41,12 +42,17 @@ export async function renderInstance(view, route) {
     <div data-live-progress="${esc(inst.id)}"></div>
 
     <div class="tabs" role="tablist">
-      <button data-tab="content" class="${tab === 'content' ? 'active' : ''}">${icon('puzzle')}Контент <span class="count" data-count>…</span></button>
-      <button data-tab="worlds" class="${tab === 'worlds' ? 'active' : ''}">${icon('globe')}Миры</button>
-      <button data-tab="servers" class="${tab === 'servers' ? 'active' : ''}">${icon('server')}Серверы</button>
-      <button data-tab="shots" class="${tab === 'shots' ? 'active' : ''}">${icon('image')}Скриншоты</button>
-      <button data-tab="logs" class="${tab === 'logs' ? 'active' : ''}">${icon('terminal')}Журнал</button>
-      <button data-tab="settings" class="${tab === 'settings' ? 'active' : ''}">${icon('settings')}Настройки</button>
+      ${[
+        ['content', 'puzzle', 'Контент <span class="count" data-count>…</span>', st.showTabContent !== false],
+        ['worlds', 'globe', 'Миры', st.showTabWorlds !== false],
+        ['servers', 'server', 'Серверы', true],
+        ['shots', 'image', 'Скриншоты', st.showTabShots !== false],
+        ['logs', 'terminal', 'Журнал', true],
+        ['settings', 'settings', 'Настройки', true],
+      ]
+        .filter(([id, , , on]) => on || id === tab)
+        .map(([id, ic, name]) => `<button data-tab="${id}" class="${tab === id ? 'active' : ''}">${icon(ic)}${name}</button>`)
+        .join('')}
     </div>
     <div data-tabbody></div>
   </div>`;
@@ -160,7 +166,7 @@ async function renderContent(body, inst, view) {
     );
     $$('[data-rm]', body).forEach((b) =>
       b.addEventListener('click', async () => {
-        const ok = await confirmDialog({ title: `Удалить «${b.dataset.title}»?`, text: 'Файл будет удалён из папки сборки.', action: 'Удалить' });
+        const ok = await confirmSoft({ title: `Удалить «${b.dataset.title}»?`, text: 'Файл будет удалён из папки сборки.', action: 'Удалить' });
         if (!ok) return;
         items = await window.api.instances.removeContent(inst.id, b.dataset.ctype, b.dataset.rm);
         const countEl = $('[data-count]', view);

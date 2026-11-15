@@ -98,6 +98,13 @@ async function downloadFile(url, dest, { sha1, size } = {}) {
 
 // Выполняет задачи с ограничением параллелизма и сообщает прогресс.
 async function runPool(tasks, concurrency, onProgress) {
+  // Пользовательские лимиты из настроек: одновременные скачивания и записи на диск.
+  try {
+    const st = require('./store').getSettings();
+    concurrency = Math.max(1, Math.min(concurrency, Number(st.downloadLimit) || concurrency, Number(st.writeLimit) || concurrency));
+  } catch {
+    /* настройки недоступны: берём как есть */
+  }
   let done = 0;
   let index = 0;
   const total = tasks.length;

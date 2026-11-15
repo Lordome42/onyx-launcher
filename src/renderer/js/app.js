@@ -11,6 +11,7 @@ import { renderLibrary } from './pages/library.js';
 import { renderInstance } from './pages/instance.js';
 import { renderBrowse } from './pages/browse.js';
 import { renderSettings } from './pages/settings.js';
+import { renderAllShots } from './pages/all-shots.js';
 import { renderSkin } from './pages/skin.js';
 import { renderProject } from './pages/project.js';
 import { wireUpdates } from './updater-ui.js';
@@ -21,6 +22,7 @@ const PAGES = {
   instance: { render: renderInstance, title: 'Сборка', live: true },
   browse: { render: renderBrowse, title: 'Каталог' },
   settings: { render: renderSettings, title: 'Настройки' },
+  shots: { render: renderAllShots, title: 'Скриншоты' },
   skin: { render: renderSkin, title: 'Скин' },
   project: { render: renderProject, title: 'Каталог' },
 };
@@ -47,15 +49,17 @@ function shell() {
 }
 
 function renderRail() {
+  const railCount = Math.max(0, Math.min(20, Number.isFinite(Number(state.settings.railCount)) ? Number(state.settings.railCount) : 6));
   const pinned = state.instances.filter((i) => i.pinned);
-  const rest = state.instances.filter((i) => !i.pinned).slice(0, Math.max(0, 5 - pinned.length));
+  const rest = state.instances.filter((i) => !i.pinned).slice(0, Math.max(0, railCount - pinned.length));
   const recent = [...pinned, ...rest];
   const acc = currentAccount();
   const is = (name, id) => route.name === name && (!id || route.parts[0] === id);
   $('[data-rail]').innerHTML = `
     <button class="rail-btn nav ${is('home') ? 'active' : ''}" data-go="/home" data-tip="Главная" aria-label="Главная">${icon('home')}</button>
     <button class="rail-btn nav ${is('browse') || is('project') ? 'active' : ''}" data-go="/browse" data-tip="Каталог" aria-label="Каталог">${icon('compass')}</button>
-    <button class="rail-btn nav ${is('skin') ? 'active' : ''}" data-go="/skin" data-tip="Скин" aria-label="Скин">${icon('shirt')}</button>
+    ${state.settings.railSkin !== false ? `<button class="rail-btn nav ${is('skin') ? 'active' : ''}" data-go="/skin" data-tip="Скин" aria-label="Скин">${icon('shirt')}</button>` : ''}
+    ${state.settings.railShots !== false ? `<button class="rail-btn nav ${is('shots') ? 'active' : ''}" data-go="/shots" data-tip="Все скриншоты" aria-label="Все скриншоты">${icon('image')}</button>` : ''}
     <button class="rail-btn nav ${is('library') ? 'active' : ''}" data-go="/library" data-tip="Библиотека" aria-label="Библиотека">${icon('library')}</button>
     ${recent.length ? '<div class="rail-sep"></div>' : ''}
     ${recent
@@ -125,6 +129,7 @@ subscribe((what) => {
     const isLogs = route.name === 'instance' && route.parts[1] === 'logs';
     if (page && page.live && !isLogs) renderView();
   } else if (what === 'settings') {
+    renderRail();
     document.body.classList.toggle('low-power', !!state.settings.lowPower);
   } else if (what === 'progress' || what === 'running') {
     updateLive();

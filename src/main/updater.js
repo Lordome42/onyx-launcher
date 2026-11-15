@@ -73,11 +73,12 @@ async function check() {
   return state;
 }
 
-async function download() {
+async function download(restart = false) {
   if (!autoUpdater || state.status !== 'available') return state;
   set({ status: 'downloading', percent: 0 });
   try {
     await autoUpdater.downloadUpdate();
+    if (restart) setTimeout(() => install(), 1200);
   } catch (e) {
     set({ status: 'error', error: friendly(e) });
   }
@@ -85,7 +86,7 @@ async function download() {
 }
 
 function install() {
-  if (autoUpdater && state.status === 'ready') autoUpdater.quitAndInstall(false, true);
+  if (autoUpdater && state.status === 'ready') autoUpdater.quitAndInstall(true, true);
   return true;
 }
 

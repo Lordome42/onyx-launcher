@@ -4,29 +4,10 @@ import { esc, instIcon, avatar, LOADERS, $, $$, formatDuration, timeAgo, toast }
 import { instanceCard, newInstanceCard, bindCards } from './library.js';
 import { openCreateInstance } from '../modals.js';
 import { navigate } from '../router.js';
+import { QUOTES } from '../quotes.js';
 import { updateLive, togglePlay } from '../actions.js';
 
 let marqueeCache = null;
-
-// Самурайские изречения; часть про Майнкрафт. Без ссылок на авторов: это вольные афоризмы в духе бусидо.
-const QUOTES = [
-  ['Путь воина начинается с первого шага, а путь строителя с первого блока.', 'Путь самурая'],
-  ['Клинок точат годами, а дом строят за ночь, но защищать их нужно одинаково.', 'Бусидо'],
-  ['Не бойся ночи: даже крипер взрывается лишь тогда, когда ты стоишь рядом.', 'Путь шахтёра'],
-  ['Мастер не говорит «получилось», пока не проверил крышу от мобов.', 'Путь строителя'],
-  ['Кто копает вниз без факелов, тот учится у темноты.', 'Путь шахтёра'],
-  ['Победа любит терпеливых: алмазы лежат на глубине, а не на поверхности.', 'Путь шахтёра'],
-  ['Самурай всегда держит меч под рукой, а шахтёр ведро воды.', 'Путь выживания'],
-  ['Сто ударов киркой лучше одной мечты о дворце.', 'Путь строителя'],
-  ['Спокойный ум видит дорогу даже в Нижнем мире.', 'Бусидо'],
-  ['Сначала дом, потом слава. Ночь наступит раньше, чем ты думаешь.', 'Путь выживания'],
-  ['Честь важнее добычи, а сундук важнее инвентаря.', 'Бусидо'],
-  ['Слабый ищет короткий путь, сильный копает прямо.', 'Путь шахтёра'],
-  ['Не торопись в Энд: дракон подождёт, а вот оборудование нет.', 'Путь воина'],
-  ['Каждый мод это ещё один инструмент. Мастер выбирает, а не собирает всё подряд.', 'Путь сборщика'],
-  ['Сакура цветёт недолго, поэтому делай скриншоты.', 'Путь художника'],
-  ['Упавший в лаву учится быстрее, но дороже.', 'Путь шахтёра'],
-];
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const shuffle = (arr) => arr.map((x) => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
@@ -98,6 +79,7 @@ export function renderHome(view) {
           <button class="btn ghost" data-goto="${esc(last.id)}">Открыть${icon('chevronRight')}</button>
         </div>
         <div data-live-progress="${esc(last.id)}" style="max-width:520px"></div>
+        <blockquote class="quote compact" data-quote><p>${esc(quote[0])}</p><cite>${esc(quote[1])}</cite></blockquote>
       </div>${heroArt()}`
     : `<div>${head}
         <blockquote class="quote" data-quote><p>${esc(quote[0])}</p><cite>${esc(quote[1])}</cite></blockquote>
@@ -109,7 +91,7 @@ export function renderHome(view) {
     <section class="hero">${hero}</section>
 
     ${
-      rows.length
+      rows.length && state.settings.showRecent !== false
         ? `<section class="section"><div class="section-head"><h2>Последние сервера и сборки</h2></div>
             <div class="recent-list" data-recent>${rows.map(recentRow).join('')}</div></section>`
         : ''
@@ -133,7 +115,7 @@ export function renderHome(view) {
   wireRecent(view, rows);
   loadAvatar(view, acc);
   loadMarquee(view);
-  if (!last) rotateQuotes(view);
+  rotateQuotes(view);
 }
 
 // Голова скина: берём актуальную ссылку на скин через профиль аккаунта.

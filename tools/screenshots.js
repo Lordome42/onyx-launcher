@@ -40,6 +40,9 @@ const server = http.createServer((req, res) => {
   await shot('12-filters-closed', 'samurai', '#/browse');
   await shot('13-datadir', 'samurai', '#/settings', (p) => p.click('[data-sec=about]'));
   for (const th of ['skulk', 'lush', 'cherry']) await shot('theme-' + th, th, '#/home');
+  await shot('17-settings-features', 'samurai', '#/settings', (p) => p.click('[data-sec=features]'));
+  await shot('18-settings-storage', 'samurai', '#/settings', (p) => p.click('[data-sec=storage]'));
+  await shot('19-all-shots', 'samurai', '#/shots');
   await shot('theme-picker', 'skulk', '#/settings');
   await shot('14-home', 'samurai', '#/home');
   await shot('15-home-empty', 'samurai', '#/home', null, '&empty=1');

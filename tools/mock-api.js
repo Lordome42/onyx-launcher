@@ -84,7 +84,7 @@
   window.api = {
     platform: 'win32',
     window: { minimize: ok, maximize: ok, close: ok, onState: noop },
-    app: { info: () => ok({ version: '0.3.3', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
+    app: { info: () => ok({ version: '0.3.5', platform: 'win32', dataDir: 'C:\\Users\\Dome\\AppData\\Roaming\\.aster-launcher' }), openExternal: ok },
     settings: { get: () => ok(settings), set: (p) => ok((settings = { ...settings, ...p })), openDataDir: ok },
     accounts: { list: () => ok(accounts), loginMicrosoft: ok, addOffline: ok, select: (id) => ok((accounts.selected = id, accounts)), remove: () => ok(accounts) },
     versions: {
@@ -152,6 +152,7 @@
     },
     curseforge: { detail: () => ok(projectDetail('curseforge')), search: () => ok({ hits: hits.map((h) => ({ ...h, source: 'curseforge', display_categories: ['Technology', 'Magic'] })), total_hits: 40 }), install: () => ok({ installed: ['x'], skipped: [] }), installModpack: () => ok({ instance: instances[0], manual: [] }) },
     update: { state: () => ok({ status: 'idle' }), check: () => ok({ status: 'none' }), download: ok, install: ok },
+    storage: { info: () => ok({ own: 2.4e9, shared: 3.9e9, extra: 0.6e9, cache: 0.9e9, total: 6.9e9, dir: 'C:\\Users\\User\\AppData\\Roaming\\.onyx-launcher' }), cleanExtra: () => ok({ freed: 6e8 }), clearCache: () => ok({ freed: 9e8 }), prune: ok, backupNow: () => ok({ dir: 'backups/2026-11-15' }), openBackups: ok, exportDebug: () => ok(null) },
     datadir: { info: () => ok({ dir: 'C:\\Users\\User\\AppData\\Roaming\\.onyx-launcher', size: 6.4e9, free: 3.1e9 }), choose: () => ok('D:\\Games'), move: ok },
     events: { onUpdate: noop, onProgress: noop, onStarted: noop, onLogs: noop, onVisibility: noop, onExit: noop, onContentProgress: noop },
   };

@@ -13,6 +13,7 @@ const analyze = require('./analyze');
 const gamefiles = require('./gamefiles');
 const updater = require('./updater');
 const datadir = require('./datadir');
+const maintenance = require('./maintenance');
 
 // Лёгкий запуск: меньше памяти у интерфейса, без лишних фоновых служб Chromium.
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=160');
@@ -83,7 +84,7 @@ handle('window:maximize', () => (win.isMaximized() ? win.unmaximize() : win.maxi
 handle('window:close', () => win.close());
 handle('update:state', () => updater.getState());
 handle('update:check', () => updater.check());
-handle('update:download', () => updater.download());
+handle('update:download', (restart) => updater.download(!!restart));
 handle('update:install', () => updater.install());
 handle('app:info', () => ({ version: app.getVersion(), platform: process.platform, dataDir: store.paths.root }));
 handle('app:openExternal', (url) => {
@@ -93,6 +94,13 @@ handle('app:openExternal', (url) => {
 // Настройки
 handle('settings:get', () => store.getSettings());
 handle('settings:set', (patch) => store.setSettings(patch));
+handle('storage:info', () => maintenance.storageInfo());
+handle('storage:cleanExtra', () => maintenance.cleanExtra());
+handle('storage:clearCache', () => maintenance.clearCache());
+handle('storage:prune', () => maintenance.pruneCache());
+handle('backup:now', () => maintenance.backupNow());
+handle('backup:open', () => maintenance.openBackups());
+handle('debug:export', () => maintenance.exportDebug(win));
 handle('datadir:info', () => datadir.info());
 handle('datadir:choose', () => datadir.choose(win));
 handle('datadir:move', (dir) => datadir.move(dir, (stage, done, total) => send('content:progress', { key: 'datadir', stage, done, total })));
@@ -261,6 +269,8 @@ app.whenReady().then(() => {
   nativeTheme.themeSource = 'dark';
   createWindow();
   updater.init(send);
+  maintenance.backupDaily().catch(() => {});
+  maintenance.pruneCache().catch(() => {});
   updater.checkOnStart();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

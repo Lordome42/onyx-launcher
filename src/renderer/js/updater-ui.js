@@ -14,14 +14,14 @@ export function wireUpdates() {
     box.hidden = !show;
     if (!show) return;
     if (s.status === 'available') {
-      box.innerHTML = `<div class="u-ic">${icon('download')}</div><div class="u-tx"><b>Доступна версия ${esc(s.version)}</b><span>${esc(s.notes || 'Обновление скачается в фоне, игре это не мешает.')}</span></div>
+      box.innerHTML = `<div class="u-ic">${icon('download')}</div><div class="u-tx"><b>Доступна версия ${esc(s.version)}</b><span>${esc(s.notes || 'Лаунчер сам скачает обновление, перезапустится и откроется уже новым.')}</span></div>
         <button class="btn sm" data-later>Позже</button><button class="btn sm primary" data-go>Обновить</button>`;
-      box.querySelector('[data-go]').addEventListener('click', () => window.api.update.download());
+      box.querySelector('[data-go]').addEventListener('click', () => window.api.update.download(true));
       box.querySelector('[data-later]').addEventListener('click', () => { dismissed = s.version; box.hidden = true; });
     } else if (s.status === 'downloading') {
       box.innerHTML = `<div class="u-ic">${icon('download')}</div><div class="u-tx"><b>Скачиваю обновление… ${s.percent}%</b><div class="progress"><i style="width:${s.percent}%"></i></div></div>`;
     } else {
-      box.innerHTML = `<div class="u-ic">${icon('check')}</div><div class="u-tx"><b>Версия ${esc(s.version)} готова</b><span>Лаунчер перезапустится и обновится.</span></div>
+      box.innerHTML = `<div class="u-ic">${icon('check')}</div><div class="u-tx"><b>Версия ${esc(s.version)} готова</b><span>Перезапускаю лаунчер…</span></div>
         <button class="btn sm primary" data-go>Перезапустить</button>`;
       box.querySelector('[data-go]').addEventListener('click', () => window.api.update.install());
     }

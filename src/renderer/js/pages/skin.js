@@ -1,5 +1,5 @@
 // Страница скина: превью, загрузка скина (Microsoft) и переход на Ely.by для «пиратских» аккаунтов.
-import { currentAccount, loadAccounts } from '../state.js';
+import { state, currentAccount, loadAccounts } from '../state.js';
 import { icon } from '../icons.js';
 import { esc, $, $$, avatar, toast, ACCOUNT_KIND } from '../ui.js';
 import { openAccounts } from '../modals.js';
@@ -63,7 +63,7 @@ export async function renderSkin(view) {
   }
 
   view.innerHTML = `<div class="view-inner">
-    <div class="section-head" style="margin-bottom:20px"><div><h1>Скин</h1><div class="muted" style="margin-top:4px">${esc(acc.name)} · ${ACCOUNT_KIND[acc.type]}</div></div>
+    <div class="section-head" style="margin-bottom:20px"><div><h1>Скин</h1><div class="muted" style="margin-top:4px">${state.settings.hideSkinName ? ACCOUNT_KIND[acc.type] : `${esc(acc.name)} · ${ACCOUNT_KIND[acc.type]}`}</div></div>
       <div style="display:flex;align-items:center;gap:10px">${avatar(acc, 'lg')}</div></div>
     <div class="skin-stage">
       <div class="skin-preview"><canvas width="16" height="32" data-canvas></canvas></div>

@@ -59,6 +59,21 @@ const DEFAULT_SETTINGS = {
   curseforgeKey: '',
   lowPower: false,
   autoUpdate: true,
+  showTabContent: true,
+  showTabWorlds: true,
+  showTabShots: true,
+  railShots: true,
+  railSkin: true,
+  railCount: 6,
+  showRecent: true,
+  compactLibrary: false,
+  showPlayTime: true,
+  hideSkinName: false,
+  warnForeignPacks: true,
+  onlyDangerConfirms: false,
+  cacheLimitGB: 5,
+  downloadLimit: 10,
+  writeLimit: 10,
 };
 
 function readJson(file, fallback) {
