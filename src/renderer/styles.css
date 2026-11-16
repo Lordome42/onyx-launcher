@@ -2393,3 +2393,148 @@ body.low-power .mq-track, body.game-running .mq-track { animation-play-state: pa
 .pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
 .pager .pg { min-width: 36px; height: 36px; padding: 0 10px; justify-content: center; font-variant-numeric: tabular-nums; }
 .pager .pg-gap { color: var(--text-faint, #74747c); padding: 0 2px; user-select: none; }
+
+/* ===== Новые темы ===== */
+/* Незер: угли и лава */
+[data-theme='nether'] {
+  --bg: #120706; --panel: #1b0b09; --surface: #26100c; --surface-2: #331510; --surface-3: #44201a;
+  --border: #3a1a14; --border-strong: #58291f;
+  --text: #fbeae3; --text-2: #cfa79b; --text-3: #8e665b;
+  --accent: #ff6a1f; --accent-2: #ffa263; --accent-contrast: #200a00; --accent-soft: rgba(255, 106, 31, 0.16);
+  --play: #ff6a1f; --play-text: #200a00;
+  --success: #8ed46a; --danger: #ff4d4d; --warning: #ffc04d;
+  --hero: radial-gradient(60% 150% at 86% 70%, rgba(255, 106, 31, 0.45) 0%, transparent 68%), radial-gradient(40% 90% at 5% 0%, rgba(140, 30, 20, 0.5) 0%, transparent 70%), #1d0a07;
+  --shadow: 0 10px 34px rgba(0, 0, 0, 0.6);
+  --scheme: dark;
+}
+[data-theme='nether'] .btn.primary { box-shadow: 0 0 18px rgba(255, 106, 31, 0.3); }
+/* Неон: киберпанк */
+[data-theme='neon'] {
+  --bg: #07060f; --panel: #0d0b1c; --surface: #131027; --surface-2: #1a1535; --surface-3: #251e4a;
+  --border: #211b44; --border-strong: #372d6e;
+  --text: #f3eeff; --text-2: #b4a8e0; --text-3: #7a6fae;
+  --accent: #ff3df2; --accent-2: #ff9bf8; --accent-contrast: #1a001a; --accent-soft: rgba(255, 61, 242, 0.16);
+  --play: #2de2ff; --play-text: #00232a;
+  --success: #3dffa8; --danger: #ff5577; --warning: #ffe14d;
+  --hero: radial-gradient(55% 140% at 88% 50%, rgba(255, 61, 242, 0.38) 0%, transparent 65%), radial-gradient(50% 110% at 5% 100%, rgba(45, 226, 255, 0.28) 0%, transparent 70%), #0e0a20;
+  --shadow: 0 10px 34px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 61, 242, 0.06);
+  --scheme: dark;
+}
+[data-theme='neon'] .btn.primary, [data-theme='neon'] .btn.play { box-shadow: 0 0 20px rgba(255, 61, 242, 0.35); }
+/* Мокко: тёплый кофе */
+[data-theme='mocha'] {
+  --bg: #14100d; --panel: #1c1612; --surface: #261e18; --surface-2: #30251d; --surface-3: #403126;
+  --border: #382c23; --border-strong: #53402f;
+  --text: #f6ece2; --text-2: #c7b2a0; --text-3: #8d7866;
+  --accent: #d9a066; --accent-2: #f0c595; --accent-contrast: #231207; --accent-soft: rgba(217, 160, 102, 0.16);
+  --play: #d9a066; --play-text: #231207;
+  --success: #9fcf74; --danger: #f2685c; --warning: #f0b94d;
+  --hero: radial-gradient(60% 140% at 88% 45%, rgba(217, 160, 102, 0.34) 0%, transparent 68%), linear-gradient(120deg, #2a1d14, #17110d);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --scheme: dark;
+}
+/* Глубинный сланец: нейтральный серо-синий */
+[data-theme='deepslate'] {
+  --bg: #0d0f12; --panel: #14171b; --surface: #1b1f24; --surface-2: #22272d; --surface-3: #2c333a;
+  --border: #272d34; --border-strong: #3a434c;
+  --text: #e9eef2; --text-2: #a8b4bd; --text-3: #6f7c87;
+  --accent: #5fd0c3; --accent-2: #9ae8de; --accent-contrast: #04211e; --accent-soft: rgba(95, 208, 195, 0.15);
+  --play: #5fd0c3; --play-text: #04211e;
+  --success: #7ee09a; --danger: #ff6b72; --warning: #f0c25a;
+  --hero: radial-gradient(55% 140% at 88% 50%, rgba(95, 208, 195, 0.24) 0%, transparent 68%), linear-gradient(120deg, #1f252b, #0f1215);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --scheme: dark;
+}
+/* Ледник: светлая холодная */
+[data-theme='glacier'] {
+  --bg: #e6eef5; --panel: #f3f8fc; --surface: #ffffff; --surface-2: #eaf2f9; --surface-3: #d9e7f2;
+  --border: #d3e2ee; --border-strong: #b6cfe2;
+  --text: #14283a; --text-2: #4b6379; --text-3: #8199ad;
+  --accent: #2a8fd6; --accent-2: #1a6fae; --accent-contrast: #ffffff; --accent-soft: rgba(42, 143, 214, 0.13);
+  --play: #3bb0f0; --play-text: #04223a;
+  --success: #1f9d62; --danger: #d9304a; --warning: #c98400;
+  --hero: radial-gradient(70% 140% at 90% 20%, rgba(150, 210, 250, 0.8) 0%, transparent 65%), radial-gradient(50% 110% at 5% 100%, rgba(220, 240, 255, 0.9) 0%, transparent 65%), #e9f4ff;
+  --shadow: 0 10px 30px rgba(30, 80, 120, 0.14);
+  --scheme: light;
+}
+/* Мята: светлая зелёная */
+[data-theme='mint'] {
+  --bg: #e8f3ec; --panel: #f4faf6; --surface: #ffffff; --surface-2: #eaf5ee; --surface-3: #d6eadd;
+  --border: #d0e5d8; --border-strong: #b0d3be;
+  --text: #15301f; --text-2: #496a56; --text-3: #82a08e;
+  --accent: #25a36b; --accent-2: #137a4c; --accent-contrast: #ffffff; --accent-soft: rgba(37, 163, 107, 0.13);
+  --play: #46c98a; --play-text: #04281a;
+  --success: #1f9d62; --danger: #d9304a; --warning: #c98400;
+  --hero: radial-gradient(70% 140% at 90% 20%, rgba(170, 232, 200, 0.85) 0%, transparent 65%), radial-gradient(50% 110% at 5% 100%, rgba(228, 246, 214, 0.9) 0%, transparent 65%), #eaf7ee;
+  --shadow: 0 10px 30px rgba(20, 90, 55, 0.14);
+  --scheme: light;
+}
+
+/* ===== Анимации =====
+   Уровни: body.anim-off — без анимаций, по умолчанию «обычные», body.anim-rich — «яркие».
+   Анимируются только transform и opacity, поэтому нагрузка на ПК минимальна. */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes view-rich { from { opacity: 0; transform: translateY(16px) scale(0.99); } }
+@keyframes drift { 0%, 100% { transform: translate3d(-6%, 0, 0); } 50% { transform: translate3d(6%, -4%, 0); } }
+@keyframes ring { 0% { opacity: 0.55; transform: scale(1); } 100% { opacity: 0; transform: scale(1.22, 1.5); } }
+@keyframes bar-grow { from { transform: scaleY(0); } }
+@keyframes sweep { from { transform: translateX(-130%) skewX(-18deg); } to { transform: translateX(230%) skewX(-18deg); } }
+
+.grid > *, .recent-list > *, .shot-grid > *, .fav-list > *, .stat-cards > *, .skin-grid > *, .java-list > * {
+  animation: rise 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 32ms);
+}
+.grid > :nth-child(2), .recent-list > :nth-child(2), .shot-grid > :nth-child(2), .fav-list > :nth-child(2), .stat-cards > :nth-child(2), .skin-grid > :nth-child(2), .java-list > :nth-child(2) { --i: 1; }
+.grid > :nth-child(3), .recent-list > :nth-child(3), .shot-grid > :nth-child(3), .fav-list > :nth-child(3), .stat-cards > :nth-child(3), .skin-grid > :nth-child(3), .java-list > :nth-child(3) { --i: 2; }
+.grid > :nth-child(4), .recent-list > :nth-child(4), .shot-grid > :nth-child(4), .fav-list > :nth-child(4), .stat-cards > :nth-child(4), .skin-grid > :nth-child(4), .java-list > :nth-child(4) { --i: 3; }
+.grid > :nth-child(5), .recent-list > :nth-child(5), .shot-grid > :nth-child(5), .fav-list > :nth-child(5), .stat-cards > :nth-child(5), .skin-grid > :nth-child(5), .java-list > :nth-child(5) { --i: 4; }
+.grid > :nth-child(6), .recent-list > :nth-child(6), .shot-grid > :nth-child(6), .fav-list > :nth-child(6), .stat-cards > :nth-child(6), .skin-grid > :nth-child(6), .java-list > :nth-child(6) { --i: 5; }
+.grid > :nth-child(n+7), .recent-list > :nth-child(n+7), .shot-grid > :nth-child(n+7), .fav-list > :nth-child(n+7), .skin-grid > :nth-child(n+7), .java-list > :nth-child(n+7) { --i: 6; }
+[data-tabbody] > * { animation: fade 0.22s ease both; }
+.rail-btn { transition: background 0.15s, color 0.15s, transform 0.15s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.rail-btn:active { transform: scale(0.9); }
+.btn { transition: background 0.15s, border-color 0.15s, transform 0.12s, filter 0.15s; }
+.btn.primary:hover, .btn.play:hover { filter: brightness(1.08); }
+.skeleton { position: relative; overflow: hidden; }
+.skeleton::after, .progress > i::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent); animation: shimmer 1.4s ease-in-out infinite; }
+.progress > i { position: relative; overflow: hidden; }
+.toast { animation: toast-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.15); }
+
+/* Яркие анимации */
+body.anim-rich .view { animation: view-rich 0.42s cubic-bezier(0.2, 0.8, 0.2, 1); }
+html:not([data-theme='skulk']) body.anim-rich .hero::before { content: ''; position: absolute; inset: -20% -10%; background: radial-gradient(40% 60% at 70% 40%, var(--accent-soft), transparent 70%); animation: drift 14s ease-in-out infinite; pointer-events: none; will-change: transform; }
+body.anim-rich .instance-card { overflow: hidden; transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s, box-shadow 0.2s; }
+body.anim-rich .instance-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: var(--shadow), 0 0 0 1px var(--accent-soft); }
+body.anim-rich .instance-card::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transform: translateX(-130%) skewX(-18deg); pointer-events: none; }
+body.anim-rich .instance-card:hover::after { animation: sweep 0.8s ease; }
+body.anim-rich .recent-row, body.anim-rich .fav, body.anim-rich .skin-card, body.anim-rich .project-row { transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.15s, border-color 0.15s; }
+body.anim-rich .recent-row:hover, body.anim-rich .fav:hover, body.anim-rich .project-row:hover { transform: translateX(4px); }
+body.anim-rich .skin-card:hover { transform: translateY(-3px); }
+body.anim-rich .rail-btn:hover { transform: scale(1.1); }
+body.anim-rich .rail-btn.active::before { animation: bar-grow 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); transform-origin: center; }
+body.anim-rich .btn.play { position: relative; }
+body.anim-rich .btn.play::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 2px solid var(--play); animation: ring 2.4s ease-out infinite; pointer-events: none; }
+body.anim-rich .modal { animation: pop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.25); }
+body.anim-rich .wk .bar i { transform-origin: bottom; animation: bar-grow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+body.anim-rich .theme-card { transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s; }
+body.anim-rich .theme-card:hover { transform: translateY(-4px) scale(1.02); }
+
+/* Без анимаций */
+body.anim-off *, body.anim-off *::before, body.anim-off *::after { animation: none !important; transition: none !important; }
+body.anim-off .instance-card:hover, body.anim-off .featured-card:hover, body.anim-off .theme-card:hover { transform: none; box-shadow: none; }
+body.anim-off .mq-track { animation-play-state: paused; }
+body.low-power .skeleton::after, body.low-power .progress > i::after, body.game-running .skeleton::after { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  body:not(.anim-rich) *, body:not(.anim-rich) *::before, body:not(.anim-rich) *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* Выбор акцента и анимаций */
+.accent-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.swatch { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--c); cursor: pointer; padding: 0; box-shadow: inset 0 0 0 2px var(--panel); transition: transform 0.12s; }
+.swatch:hover { transform: scale(1.12); }
+.swatch.on { border-color: var(--text); }
+.swatch.theme { background: conic-gradient(var(--accent), var(--accent-2), var(--accent)); }
+.swatch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.accent-custom { display: inline-flex; align-items: center; gap: 8px; margin-left: 6px; color: var(--text-2); font-size: 12.5px; }
+.accent-custom input[type=color] { width: 34px; height: 30px; padding: 0; border: 1px solid var(--border-strong); border-radius: 8px; background: none; cursor: pointer; }

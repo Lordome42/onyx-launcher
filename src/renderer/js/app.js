@@ -2,7 +2,7 @@
 import { state, subscribe, loadInstances, loadAccounts, currentAccount } from './state.js';
 import { icon, logo } from './icons.js';
 import { $, $$, esc, instIcon, avatar } from './ui.js';
-import { applyTheme } from './themes.js';
+import { applyTheme, applyAccent, applyAnim } from './themes.js';
 import { startRouter, navigate, parseRoute } from './router.js';
 import { openCreateInstance, openAccounts } from './modals.js';
 import { updateLive, wireGameEvents, setOpenAccounts } from './actions.js';
@@ -149,6 +149,8 @@ async function boot() {
   try {
     state.settings = await window.api.settings.get();
     applyTheme(state.settings.theme);
+    applyAccent(state.settings.accent || '');
+    applyAnim(state.settings.animLevel);
     document.body.classList.toggle('low-power', !!state.settings.lowPower);
   } catch {
     /* настройки по умолчанию */

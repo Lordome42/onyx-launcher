@@ -36,6 +36,38 @@ function heroArt() {
       Array.from({ length: n }, (_, i) => `<circle cx="${x + (i % 2 ? 9 : -9)}" cy="${len - 8 - i * 20}" r="8" fill="var(--accent)"/><circle cx="${x + (i % 2 ? 7 : -11)}" cy="${len - 11 - i * 20}" r="2.5" fill="#fff" opacity=".7"/>`).join('');
     return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true">${vine(35, 120, 4)}${vine(80, 150, 5)}${vine(130, 100, 3)}${vine(175, 135, 4)}</svg>`;
   }
+  if (theme === 'nether') {
+    // Портал в Незер: рамка из обсидиана и фиолетовое марево.
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true"><defs><linearGradient id="np" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b24dff"/><stop offset="1" stop-color="#5b1fb0"/></linearGradient></defs>
+      <rect x="62" y="22" width="86" height="120" rx="3" fill="url(#np)" opacity=".85"/><g fill="#1a0f26" stroke="var(--accent)" stroke-width="1.5"><rect x="48" y="14" width="114" height="14"/><rect x="48" y="136" width="114" height="14"/><rect x="48" y="14" width="14" height="136"/><rect x="148" y="14" width="14" height="136"/></g>
+      <circle cx="35" cy="130" r="4" fill="var(--accent)" opacity=".8"/><circle cx="180" cy="110" r="3" fill="var(--accent-2)" opacity=".7"/><circle cx="26" cy="90" r="2.4" fill="var(--accent-2)" opacity=".6"/></svg>`;
+  }
+  if (theme === 'neon') {
+    // Ретро-солнце в сетке.
+    const lines = [0, 1, 2, 3, 4, 5].map((i) => `<line x1="${10 - i * 8}" y1="${112 + i * 10}" x2="${200 + i * 8}" y2="${112 + i * 10}" stroke="var(--accent-2)" stroke-width="1.6" opacity="${0.7 - i * 0.09}"/>`).join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true"><defs><linearGradient id="nn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent-2)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient><clipPath id="nc"><rect x="0" y="0" width="210" height="112"/></clipPath></defs>
+      <circle cx="105" cy="84" r="58" fill="url(#nn)" clip-path="url(#nc)"/>${[70, 80, 90, 98, 105].map((y, i) => `<rect x="40" y="${y}" width="130" height="${2 + i}" fill="#07060f"/>`).join('')}${lines}<line x1="105" y1="112" x2="105" y2="160" stroke="var(--accent-2)" opacity=".5"/></svg>`;
+  }
+  if (theme === 'mocha') {
+    // Чашка кофе с паром.
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true"><path d="M70 62 h70 v44 a28 28 0 0 1 -28 28 h-14 a28 28 0 0 1 -28 -28z" fill="var(--accent)"/><path d="M140 72 h12 a14 14 0 0 1 0 28 h-12" fill="none" stroke="var(--accent)" stroke-width="8"/><ellipse cx="105" cy="62" rx="35" ry="7" fill="#3a2418"/><ellipse cx="105" cy="146" rx="62" ry="6" fill="var(--accent)" opacity=".25"/>
+      <path d="M90 46 c-8 -10 8 -16 0 -28 M110 46 c-8 -10 8 -16 0 -28 M130 46 c-8 -10 8 -16 0 -28" stroke="var(--accent-2)" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/></svg>`;
+  }
+  if (theme === 'deepslate') {
+    // Жила алмазной руды в сланце.
+    const ore = [[82, 70], [120, 58], [138, 92], [98, 104], [64, 108], [112, 82]].map(([x, y]) => `<rect x="${x}" y="${y}" width="16" height="16" rx="2" fill="var(--accent)"/><rect x="${x + 3}" y="${y + 3}" width="5" height="5" fill="#fff" opacity=".7"/>`).join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true"><rect x="40" y="36" width="130" height="100" rx="8" fill="#2a3036"/><rect x="40" y="36" width="130" height="100" rx="8" fill="none" stroke="#3b444c" stroke-width="3"/>${ore}</svg>`;
+  }
+  if (theme === 'glacier') {
+    // Снежинка.
+    const arm = [0, 60, 120].map((r) => `<g transform="rotate(${r} 105 80)"><line x1="105" y1="20" x2="105" y2="140" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/><path d="M105 38 l-14 -12 M105 38 l14 -12 M105 122 l-14 12 M105 122 l14 12 M105 58 l-10 -9 M105 58 l10 -9 M105 102 l-10 9 M105 102 l10 9" stroke="var(--accent-2)" stroke-width="3.5" stroke-linecap="round"/></g>`).join('');
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true">${arm}<circle cx="105" cy="80" r="8" fill="#fff" stroke="var(--accent)" stroke-width="3"/></svg>`;
+  }
+  if (theme === 'mint') {
+    // Листья мяты.
+    const leaf = (x, y, r, k) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${k})"><path d="M0 0 C-28 -20 -22 -64 0 -78 C22 -64 28 -20 0 0Z" fill="var(--accent)"/><path d="M0 0 V-62" stroke="#fff" stroke-opacity=".55" stroke-width="3"/></g>`;
+    return `<svg class="hero-art" viewBox="0 0 210 160" aria-hidden="true">${leaf(105, 140, 0, 1.2)}${leaf(100, 140, -48, 0.95)}${leaf(110, 140, 48, 0.95)}${leaf(95, 140, -84, 0.6)}${leaf(115, 140, 84, 0.6)}</svg>`;
+  }
   if (theme === 'end') {
     // Портал Энда: фиолетовое кольцо и глаза эндера.
     const eyes = [[62, 58], [148, 58], [105, 130], [60, 108], [150, 108]].map(([x, y]) => `<rect x="${x - 6}" y="${y - 3}" width="12" height="6" fill="var(--accent-2)"/><rect x="${x - 2}" y="${y - 3}" width="4" height="6" fill="#1a0d2e"/>`).join('');

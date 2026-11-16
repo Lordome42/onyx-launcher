@@ -2,7 +2,7 @@ import { state, notify } from '../state.js';
 import { icon } from '../icons.js';
 import { esc, $, $$, toast, confirmDialog, progressModal } from '../ui.js';
 import { javaOptions, mountJavaProfiles } from '../java-ui.js';
-import { THEMES, applyTheme, themePreview } from '../themes.js';
+import { THEMES, ACCENTS, applyTheme, applyAccent, applyAnim, themePreview } from '../themes.js';
 
 async function save(patch) {
   try {
@@ -56,6 +56,20 @@ export async function renderSettings(view) {
               (t) => `<button class="theme-card ${s.theme === t.id ? 'active' : ''}" data-theme-id="${t.id}">
                 ${themePreview(t)}<div class="name">${esc(t.name)}${s.theme === t.id ? icon('check') : ''}</div></button>`
             ).join('')}</div>
+            <div class="setting stack">
+              <div class="txt"><b>Цвет акцента</b><span>Меняет цвет кнопок, выделений и полос поверх любой темы. «Как в теме» возвращает родной цвет.</span></div>
+              <div class="accent-row" data-accents>
+                <button class="swatch theme ${s.accent ? '' : 'on'}" data-accent="" title="Как в теме" aria-label="Как в теме"></button>
+                ${ACCENTS.map(([c, n]) => `<button class="swatch ${String(s.accent).toLowerCase() === c ? 'on' : ''}" style="--c:${c}" data-accent="${c}" title="${n}" aria-label="${n}"></button>`).join('')}
+                <label class="accent-custom">Свой цвет<input type="color" id="st-accent" value="${/^#[0-9a-f]{6}$/i.test(s.accent || '') ? s.accent : '#e23a3f'}" aria-label="Свой цвет акцента" /></label>
+              </div>
+            </div>
+            <div class="setting">
+              <div class="txt"><b>Анимации интерфейса</b><span>«Обычные» — плавное появление и наведение. «Яркие» добавляют эффекты на карточках и главной. «Выкл» отключает всё. Во время игры анимации и так отключены.</span></div>
+              <div class="ctl"><div class="segmented" data-anim>
+                ${[['off', 'Выкл'], ['normal', 'Обычные'], ['rich', 'Яркие']].map(([k, n]) => `<button data-a="${k}" class="${(s.animLevel || 'normal') === k ? 'active' : ''}">${n}</button>`).join('')}
+              </div></div>
+            </div>
           </div>
         </section>
 
@@ -239,6 +253,22 @@ export async function renderSettings(view) {
         const name = THEMES.find((t) => t.id === x.dataset.themeId).name;
         $('.name', x).innerHTML = esc(name) + (on ? icon('check') : '');
       });
+    })
+  );
+
+  const setAccent = async (hex) => {
+    applyAccent(hex);
+    await save({ accent: hex });
+    $$('[data-accent]', view).forEach((b) => b.classList.toggle('on', b.dataset.accent.toLowerCase() === hex.toLowerCase()));
+  };
+  $$('[data-accent]', view).forEach((b) => b.addEventListener('click', () => setAccent(b.dataset.accent)));
+  $('#st-accent', view).addEventListener('input', (e) => applyAccent(e.target.value));
+  $('#st-accent', view).addEventListener('change', (e) => setAccent(e.target.value));
+  $$('[data-anim] [data-a]', view).forEach((b) =>
+    b.addEventListener('click', async () => {
+      applyAnim(b.dataset.a);
+      await save({ animLevel: b.dataset.a });
+      $$('[data-anim] [data-a]', view).forEach((x) => x.classList.toggle('active', x === b));
     })
   );
 

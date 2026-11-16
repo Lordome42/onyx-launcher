@@ -49,6 +49,8 @@ const server = http.createServer((req, res) => {
   await shot('23-theme-nightsky', 'nightsky', '#/home');
   await shot('24-java', 'samurai', '#/settings', (p) => p.click('[data-sec=java]'));
   await shot('25-import', 'samurai', '#/library', async (p) => { await p.click('[data-import]'); await p.fill('#imp-in', 'https://modrinth.com/modpack/fabulously-optimized'); await p.waitForTimeout(300); });
+  for (const t of ['nether', 'neon', 'mocha', 'deepslate', 'glacier', 'mint']) await shot('26-theme-' + t, t, '#/home');
+  await shot('27-accent', 'midnight', '#/settings', async (p) => { await p.click('[data-accent="#ff4fa3"]'); await p.waitForTimeout(300); await p.evaluate(() => document.querySelector('#view').scrollTo(0, 560)); });
   await shot('theme-picker', 'skulk', '#/settings');
   await shot('14-home', 'samurai', '#/home');
   await shot('15-home-empty', 'samurai', '#/home', null, '&empty=1');

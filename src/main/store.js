@@ -49,6 +49,8 @@ const DEFAULT_SETTINGS = {
   memoryMin: 1024,
   memoryMax: 4096,
   javaPath: '',
+  accent: '',
+  animLevel: 'normal',
   javaProfile: 'auto',
   javaProfiles: [],
   discordRpc: true,
